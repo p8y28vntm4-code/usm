@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aufbau-Guide · Haller-Wissen</title>
+<meta name="description" content="Schritt für Schritt vom Querträger zum nivellierten Regal.">
+<style>
+  :root{
+    --ink:#24272a;
+    --ink-2:#555a60;
+    --line:#c9ccd0;
+    --line-2:#e6e8ea;
+    --ground:#f7f8f9;
+    --surface:#ffffff;
+    --orange:#e25303;      /* Reinorange RAL 2004 */
+    --orange-ink:#c24702;
+    --orange-soft:#fdeee4;
+    --enzian:#00557f;      /* Enzianblau RAL 5010 */
+    --enzian-soft:#e6f0f6;
+    --gruen:#3f7652;
+    --gruen-soft:#e5efe8;
+    --bar:#24272a;
+    --bar-ink:#cfd3d6;
+    --kugel-hi:#ffffff; --kugel-mid:#d8dbde; --kugel-lo:#8d9298;
+    --stage-a:#ffffff; --stage-b:#e4e7ea;
+    --radius:2px;
+    --maxw:1080px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --ink:#e7e9eb; --ink-2:#a9afb5; --line:#3d4247; --line-2:#2c3034;
+      --ground:#16181a; --surface:#1e2124;
+      --orange:#ff7a33; --orange-ink:#ff8f52; --orange-soft:#3a2317;
+      --enzian:#6fb3dc; --enzian-soft:#172a36;
+      --gruen:#7fbf94; --gruen-soft:#1a2b20;
+      --bar:#0e0f10; --bar-ink:#a9afb5;
+      --kugel-hi:#f4f5f6; --kugel-mid:#b9bdc1; --kugel-lo:#5e6368;
+      --stage-a:#4f555b; --stage-b:#32363a;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --ink:#e7e9eb; --ink-2:#a9afb5; --line:#3d4247; --line-2:#2c3034;
+    --ground:#16181a; --surface:#1e2124;
+    --orange:#ff7a33; --orange-ink:#ff8f52; --orange-soft:#3a2317;
+    --enzian:#6fb3dc; --enzian-soft:#172a36;
+    --gruen:#7fbf94; --gruen-soft:#1a2b20;
+    --bar:#0e0f10; --bar-ink:#a9afb5;
+    --kugel-hi:#f4f5f6; --kugel-mid:#b9bdc1; --kugel-lo:#5e6368;
+    --stage-a:#4f555b; --stage-b:#32363a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none!important}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    background:var(--ground);
+    color:var(--ink);
+    line-height:1.65;
+    font-size:16px;
+  }
+  ::selection{background:var(--orange);color:#fff}
+  h1,h2,h3,h4{line-height:1.15;letter-spacing:-0.01em;text-wrap:balance}
+  h1{font-size:clamp(2rem,6vw,4rem);font-weight:800}
+  h2{font-size:clamp(1.45rem,3.5vw,2.1rem);font-weight:700}
+  h3{font-size:1.12rem;font-weight:700}
+  p{max-width:68ch}
+  .eyebrow{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--orange);margin-bottom:.6rem;display:block}
+  a{color:var(--enzian)}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+  /* Kugel-Ecken */
+  .frame{position:relative;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:1.6rem 1.5rem}
+  .frame::before,.frame::after,.frame .b1::before,.frame .b1::after{
+    content:"";position:absolute;width:11px;height:11px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--kugel-hi) 0%, var(--kugel-mid) 45%, var(--kugel-lo) 100%);
+    border:1px solid var(--kugel-lo);
+  }
+  .frame::before{top:-6px;left:-6px}
+  .frame::after{top:-6px;right:-6px}
+  .frame .b1::before{bottom:-6px;left:-6px}
+  .frame .b1::after{bottom:-6px;right:-6px}
+  .b1{position:absolute;inset:0;pointer-events:none}
+
+  header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--ground);border-bottom:1.5px solid var(--line)}
+  .nav-inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;gap:.4rem 1rem;padding:.6rem 16px;flex-wrap:wrap}
+  .logo{font-weight:800;font-size:1.05rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.5rem}
+  .logo .dot{width:13px;height:13px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%, var(--kugel-hi) 0%, var(--kugel-mid) 45%, var(--kugel-lo) 100%);border:1px solid var(--kugel-lo)}
+  nav ul{display:flex;gap:.1rem;list-style:none;flex-wrap:wrap}
+  nav a{font-size:.8rem;font-weight:600;color:var(--ink-2);text-decoration:none;padding:.3rem .5rem;border-radius:var(--radius);display:block}
+  nav a:hover{color:var(--ink);background:var(--line-2)}
+  nav a[aria-current="page"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--orange)}
+
+  .hero{max-width:var(--maxw);margin:0 auto;padding:4rem 16px 2.5rem;display:grid;grid-template-columns:1.2fr .8fr;gap:3rem;align-items:center}
+  .hero h1 span{color:var(--orange)}
+  .hero .lead{font-size:1.1rem;color:var(--ink-2);margin-top:1.2rem}
+  .cta-row{margin-top:1.8rem;display:flex;gap:.8rem;flex-wrap:wrap}
+  .btn{display:inline-block;padding:.7rem 1.3rem;border-radius:var(--radius);font-weight:700;font-size:.92rem;text-decoration:none;border:1.5px solid transparent;cursor:pointer;font-family:inherit}
+  .btn-primary{background:var(--orange);color:#fff}
+  .btn-primary:hover{background:var(--orange-ink)}
+  .btn-ghost{border-color:var(--line);color:var(--ink);background:transparent}
+  .btn-ghost:hover{background:var(--line-2)}
+  .hero-art{display:flex;justify-content:center}
+  .hero-art svg{width:100%;max-width:340px;height:auto}
+  .hero-art .lbl{fill:var(--ink-2);font-family:Helvetica,Arial,sans-serif;font-size:11px}
+  .hero-art .bohrung{fill:var(--kugel-lo)}
+
+  .disclaimer-strip{background:var(--bar);color:var(--bar-ink);font-size:.78rem;text-align:center;padding:.45rem 16px}
+  .disclaimer-strip strong{color:#fff}
+
+  section{max-width:var(--maxw);margin:0 auto;padding:3rem 16px}
+  .section-head{margin-bottom:1.6rem;display:grid;gap:.4rem}
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem}
+  .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.4rem}
+  .card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:1.3rem 1.25rem}
+  .card h3{margin-bottom:.5rem}
+  .card p{font-size:.93rem;color:var(--ink-2)}
+  .card .tag,.tag{display:inline-block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:.15rem .5rem;border-radius:var(--radius);margin-bottom:.7rem}
+  .tag-orange{background:var(--orange-soft);color:var(--orange-ink)}
+  .tag-blau{background:var(--enzian-soft);color:var(--enzian)}
+  .tag-gruen{background:var(--gruen-soft);color:var(--gruen)}
+  .tag-grau{background:var(--line-2);color:var(--ink-2)}
+  .tag-neu{background:var(--orange);color:#fff}
+
+  ul.liste{padding-left:1.2rem;font-size:.95rem;color:var(--ink-2)}
+  ul.liste li{margin-bottom:.45rem}
+  ul.liste strong{color:var(--ink)}
+  ol.schritte{counter-reset:s;list-style:none;display:grid;gap:1rem;margin-top:1.2rem}
+  ol.schritte li{counter-increment:s;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.2rem 1.1rem 3.6rem;position:relative;font-size:.95rem;color:var(--ink-2)}
+  ol.schritte li::before{content:counter(s);position:absolute;left:1.05rem;top:1.05rem;width:1.7rem;height:1.7rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:var(--ground);background:var(--ink)}
+  ol.schritte li strong{display:block;margin-bottom:.2rem;color:var(--ink)}
+
+  .hinweis{border-left:4px solid var(--orange);background:var(--orange-soft);padding:1rem 1.2rem;border-radius:var(--radius);margin:1.4rem 0;font-size:.93rem}
+  .hinweis.blau{border-color:var(--enzian);background:var(--enzian-soft)}
+  .hinweis.gruen{border-color:var(--gruen);background:var(--gruen-soft)}
+  .hinweis strong{display:block;margin-bottom:.25rem}
+
+  table{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--surface)}
+  th,td{border:1.5px solid var(--line);padding:.55rem .8rem;text-align:left;vertical-align:top}
+  th{background:var(--line-2);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+  td{font-variant-numeric:tabular-nums}
+  .table-wrap{overflow-x:auto;margin-top:1rem}
+  .preis,.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .anr{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;font-weight:700}
+
+  .dreh-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:1.4rem}
+  .dreh{padding:1.4rem;text-align:center}
+  .dreh .pfeil{font-size:2.4rem;line-height:1;display:block;margin-bottom:.4rem}
+  .dreh h4{font-size:.95rem;margin-bottom:.5rem}
+  .dreh p{font-size:.85rem;color:var(--ink-2);margin:0 auto}
+  .dreh .merksatz{margin-top:.7rem;font-weight:700;font-size:.9rem}
+  .dreh .merksatz.loesen{color:var(--orange)}
+  .dreh .merksatz.fest{color:var(--enzian)}
+
+  details{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);margin-bottom:.8rem}
+  summary{cursor:pointer;font-weight:700;padding:1rem 1.2rem;font-size:.97rem;list-style:none;display:flex;justify-content:space-between;gap:1rem}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font-weight:400;font-size:1.3rem;color:var(--orange);flex:none}
+  details[open] summary::after{content:"–"}
+  details .antwort{padding:0 1.2rem 1.1rem;font-size:.93rem;color:var(--ink-2)}
+
+  .page-head{max-width:var(--maxw);margin:0 auto;padding:2.8rem 16px 0}
+  .page-head h1{font-size:clamp(1.8rem,4.5vw,2.9rem)}
+  .page-head .lead{color:var(--ink-2);margin-top:.8rem;font-size:1.05rem}
+  .crumb{font-size:.78rem;color:var(--ink-2);margin-bottom:1rem}
+  .crumb a{color:var(--ink-2);text-decoration:none}
+  .topic-card{display:block;text-decoration:none;color:inherit;transition:border-color .15s}
+  .topic-card:hover{border-color:var(--orange)}
+  .topic-card .mehr{font-size:.82rem;font-weight:700;color:var(--orange);margin-top:.7rem;display:inline-block}
+  .next-prev{display:flex;justify-content:space-between;gap:1rem;max-width:var(--maxw);margin:0 auto;padding:0 16px 3rem;flex-wrap:wrap}
+
+  /* Rechner */
+  .calc{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:1.4rem;align-items:start}
+  .calc form{display:grid;gap:1rem}
+  .feld{display:grid;gap:.3rem}
+  .feld label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+  .feld input,.feld select{font:inherit;font-size:1rem;padding:.55rem .7rem;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--ground);color:var(--ink);width:100%}
+  .feld-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .feld label.check{display:flex;gap:.55rem;align-items:center;font-size:.92rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);cursor:pointer}
+  .feld label.check input{width:1.05rem;height:1.05rem;padding:0;flex:none;accent-color:var(--orange)}
+  .summe{display:flex;gap:1.4rem;flex-wrap:wrap;margin-bottom:1rem}
+  .summe div{display:grid}
+  .summe b{font-size:1.9rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .summe span{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)}
+  .aussen{font-size:.88rem;color:var(--ink-2);margin-top:.8rem}
+
+  footer{background:var(--bar);color:var(--bar-ink);margin-top:3rem}
+  .footer-inner{max-width:var(--maxw);margin:0 auto;padding:2.5rem 16px;font-size:.85rem;display:grid;grid-template-columns:1.4fr 1fr;gap:2rem}
+  footer h4{color:#fff;margin-bottom:.6rem;font-size:.95rem}
+  footer a{color:#e8eaec}
+  footer ul{list-style:none;display:grid;gap:.3rem}
+
+
+  /* Konfigurator */
+  .presets{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:1rem}
+  .presets .ctl-title{margin-right:.3rem}
+  .chip-btn{font:inherit;font-size:.85rem;font-weight:600;padding:.4rem .8rem;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);cursor:pointer}
+  .chip-btn:hover{border-color:var(--orange)}
+  .konf-app{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:1.4rem;align-items:start}
+  .viewer{padding:1rem}
+  .viewer-bar{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .seg button{font:inherit;font-size:.82rem;font-weight:700;padding:.4rem .8rem;border:0;background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .seg button + button{border-left:1.5px solid var(--line)}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+  .btn-sm{padding:.45rem .85rem;font-size:.84rem}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .stage{position:relative;height:clamp(300px,44vw,520px);border-radius:var(--radius);background:linear-gradient(180deg,var(--stage-a) 0%,var(--stage-b) 100%);overflow:hidden}
+  .stage canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+  .stage canvas.dragging{cursor:grabbing}
+  .stage canvas.over{cursor:pointer}
+  .stage-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:1rem;color:var(--ink-2);font-size:.9rem;margin:0 auto}
+  .viewer-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.3rem 1rem;margin-top:.7rem;font-size:.85rem;color:var(--ink-2)}
+  .viewer-foot b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .viewer-hint{font-size:.8rem;color:var(--ink-2);margin-top:.35rem}
+  .meldung{margin-top:.6rem;font-size:.85rem;border-left:3px solid var(--orange);background:var(--orange-soft);padding:.5rem .7rem;border-radius:var(--radius)}
+  .ctl{padding:1rem}
+  .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1.5px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+  .tabs button{font:inherit;font-size:.82rem;font-weight:700;padding:.55rem .2rem;border:0;background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .tabs button + button{border-left:1.5px solid var(--line)}
+  .tabs button[aria-selected="true"]{background:var(--ink);color:var(--ground)}
+  .ctl-panel{display:grid;gap:1.1rem}
+  .ctl-group{display:grid;gap:.5rem}
+  .ctl-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)}
+  .ctl-note{font-size:.8rem;color:var(--ink-2);line-height:1.45}
+  .col-row{display:grid;grid-template-columns:4.4rem minmax(0,1fr) auto;gap:.5rem;align-items:center;font-size:.88rem}
+  .col-row.zwei{grid-template-columns:4.4rem minmax(0,1fr)}
+  .stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .stepper button{font:inherit;font-size:1rem;font-weight:700;width:2rem;height:2.1rem;border:0;background:transparent;color:var(--ink);cursor:pointer}
+  .stepper button:disabled{color:var(--line);cursor:not-allowed}
+  .stepper output{min-width:1.5rem;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;font-size:.92rem}
+  .konf select{font:inherit;font-size:.92rem;padding:.42rem .5rem;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--ground);color:var(--ink);width:100%}
+  .btn-row{display:flex;flex-wrap:wrap;gap:.5rem}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(2.1rem,1fr));gap:.45rem}
+  .swatch{aspect-ratio:1;max-width:100%;border-radius:50%;border:1.5px solid var(--line);cursor:pointer;padding:0}
+  .swatch[aria-checked="true"]{outline:3px solid var(--orange);outline-offset:2px}
+  .swatch.wie{background:linear-gradient(135deg,var(--surface) 49%,var(--line) 50%)}
+  .swatch-name{font-size:.85rem;color:var(--ink-2)}
+  .swatch-name b{color:var(--ink)}
+  .opt-list{display:grid;gap:.35rem}
+  .opt{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:var(--radius);cursor:pointer;font-size:.9rem;background:var(--surface)}
+  .opt input{margin-top:.25rem;accent-color:var(--orange);flex:none}
+  .opt small{display:block;color:var(--ink-2);font-size:.78rem;line-height:1.35}
+  .opt.is-off{opacity:.55;cursor:not-allowed}
+  .opt.is-on{border-color:var(--orange)}
+  .check-row{display:flex;gap:.5rem;align-items:center;font-size:.9rem;cursor:pointer}
+  .check-row input{accent-color:var(--orange);width:1.05rem;height:1.05rem}
+  .raster{position:relative;width:100%;margin:0 auto;border-bottom:2px solid var(--ink-2)}
+  .raster button{position:absolute;border:1.5px solid var(--ink-2);background:var(--surface);color:var(--ink);font:inherit;font-size:.7rem;font-weight:800;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .raster button[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--ground),inset 0 0 0 5px var(--ink);z-index:1}
+  .fach-kopf{display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;flex-wrap:wrap}
+  .fach-kopf h3{font-size:1rem}
+  .fach-kopf span{font-size:.85rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .parts-head{display:flex;flex-wrap:wrap;gap:.8rem 1rem;justify-content:space-between;align-items:flex-end;margin-bottom:1rem}
+  .status{display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;padding:.35rem .75rem;border-radius:999px}
+  .status.ok{background:var(--gruen-soft);color:var(--gruen)}
+  .status.warn{background:var(--orange-soft);color:var(--orange-ink)}
+  #teile tr.grp th{background:var(--surface);color:var(--orange-ink);font-size:.72rem;padding-top:.9rem}
+  #teile .muted{color:var(--ink-2);font-weight:400;font-family:inherit;font-size:.82rem}
+  #teile tfoot td{font-weight:800;background:var(--line-2)}
+  .hinweise{margin-top:1rem;display:grid;gap:.4rem;font-size:.88rem;color:var(--ink-2);padding-left:1.1rem;max-width:80ch}
+  .code-box{display:grid;gap:.5rem;margin-top:1rem;max-width:40rem}
+  .code-box label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+  .code-box input{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--ground);color:var(--ink);width:100%}
+  .fehler{color:var(--orange-ink);font-size:.85rem}
+  .kopie{width:100%;min-height:12rem;margin-top:1rem;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;padding:.6rem;border:1.5px solid var(--line);background:var(--ground);color:var(--ink)}
+  .nur-mobil{display:none}
+  @media (max-width:860px){
+    .konf-app{grid-template-columns:minmax(0,1fr)}
+    .stage{height:clamp(260px,78vw,440px)}
+    .nur-mobil{display:inline-block}
+  }
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr;padding-top:2.5rem;gap:1.5rem}
+    .hero-art{order:-1}
+    .hero-art svg{max-width:200px}
+    .grid-2,.grid-3,.dreh-grid,.footer-inner,.calc{grid-template-columns:minmax(0,1fr)}
+  }
+  @media (max-width:420px){ .feld-row{grid-template-columns:1fr} .summe{gap:.9rem} .summe b{font-size:1.5rem} }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.topic-card{transition:none}}
+
+</style>
+</head>
+<body>
+<div class="disclaimer-strip"><strong>Inoffizielles Community-Projekt</strong> – keine Verbindung zur USM U. Schärer Söhne AG. Frei formulierte Erfahrungs- und Wissenstexte, alle Angaben ohne Gewähr.</div>
+<header><div class="nav-inner"><a class="logo" href="index.html"><span class="dot"></span>Haller-Wissen</a>
+<nav aria-label="Hauptnavigation"><ul><li><a href="system.html">System</a></li><li><a href="werkzeug.html">Werkzeug</a></li><li><a href="aufbau.html" aria-current="page">Aufbau</a></li><li><a href="konfigurator.html">Konfigurator</a></li><li><a href="demontage.html">Demontage</a></li><li><a href="elemente.html">Elemente</a></li><li><a href="tueren.html">Türen</a></li><li><a href="komponenten.html">Auszüge</a></li><li><a href="vitrine.html">Vitrine</a></li><li><a href="sicherheit.html">Sicherheit</a></li><li><a href="ersatzteile.html">Ersatzteile</a></li><li><a href="praxis.html">Praxis</a></li></ul></nav></div></header>
+<main id="top">
+  <div class="page-head">
+    <div class="crumb"><a href="index.html">Start</a> / Aufbau-Guide</div>
+    <span class="eyebrow">Schritt für Schritt</span>
+    <h1>Aufbau-Guide: Vom Einzelteil zum Regal</h1>
+    <p class="lead">Am Beispiel eines Regals mit 2 Elementen Breite (750er),
+    2 Elementen Höhe (350er) und 350er Tiefe. Das Prinzip lässt sich auf jede
+    Konfiguration übertragen: erst Querträger, dann Rahmen, dann in die Höhe.</p>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Vorbereitung</span>
+      <h2>Beispiel-Stückliste &amp; Drehrichtungen</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag tag-grau">Materialbedarf</span>
+        <h3>Regal 2×750 breit, 2×350 hoch, 350 tief</h3>
+        <ul class="liste">
+          <li>12 × Rohre 750&nbsp;mm</li>
+          <li>21 × Rohre 350&nbsp;mm</li>
+          <li>18 × Kugeln</li>
+          <li>66 × Verbinder („Connies“)</li>
+          <li>10 × Metallelemente 750×350</li>
+          <li>4 × Metallelemente 350×350 (außen)</li>
+          <li>2 × Innenwände 350×350 (umlaufende Lochreihen)</li>
+          <li>6 × Nivelliergleiter (Gewindelänge 16&nbsp;mm)</li>
+        </ul>
+        <p style="margin-top:.7rem">Vor dem Start: Werkzeug komplett?
+        Alle Teile da? Eine Decke als kratzfreie Unterlage bereitlegen.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-orange">Merkregel</span>
+        <h3>Drehrichtungen der Verbinderschraube</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Zugriff</th><th>Lösen</th><th>Anziehen</th></tr>
+            <tr><td>Durchs Rohr (5&nbsp;mm, lang)</td><td>links</td><td>rechts</td></tr>
+            <tr><td>Durch die Kugel (4&nbsp;mm, kurz)</td><td>rechts</td><td>links</td></tr>
+          </table>
+        </div>
+        <p style="margin-top:.7rem">Das fühlt sich anfangs falsch an – einfach
+        an die Tabelle halten. „Satt anziehen“ heißt: handfest mit dem T-Griff,
+        kein Gewaltakt.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="hinweis gruen" style="margin:0">
+      <strong>Eigene Maße? Der Konfigurator erstellt die Stückliste.</strong>
+      Die Liste oben gilt nur für 2×2 Fächer. Im <a href="konfigurator.html">Regal-Konfigurator</a>
+      planst du jede andere Kombination in 3D, inklusive Türen und Artikelnummern.
+      Nur die Mengen liefert der schnellere <a href="rechner.html">Teilerechner</a>.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Phase 1</span>
+      <h2>Querträger und Rahmen bauen</h2>
+    </div>
+    <ol class="schritte">
+      <li><strong>Querträger vormontieren</strong>
+        Je Querträger: 2 Kugeln, 4 Connies, 1 Rohr 350. Zwei Connies von Hand
+        lose im 90°-Winkel auf jede Kugel schrauben (max. 2 Umdrehungen,
+        Kontrollbohrung Richtung Kugel). 350er-Rohr aufstecken und den Connie
+        durch die Kugel satt anziehen. Zweite Kugel aufs andere Rohrende –
+        die beiden abstehenden Connies müssen in dieselbe Richtung zeigen.
+        Für ein Drei-Rahmen-Gestell brauchst du 9 Querträger.</li>
+      <li><strong>Rahmen, Teil 1</strong>
+        Auf die abstehenden Connies eines Querträgers je ein 750er-Rohr
+        stecken und anziehen. Wichtig bei gelochten 750er-Rohren (Lochpaar
+        mittig): Die Löcher zeigen im 90°-Winkel nach <em>innen</em>.
+        Zweiten Querträger aufstecken und anziehen – das erste Rechteck steht.</li>
+      <li><strong>Rahmen, Teil 2</strong>
+        Am zweiten Querträger in Verlängerung der 750er je einen Connie von
+        Hand ansetzen, zwei weitere 750er-Rohre aufstecken und mit dem langen
+        Inbus durchs Rohr festziehen. Dritten Querträger aufsetzen und
+        anziehen. Rahmen fertig – insgesamt drei Stück bauen.</li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Phase 2</span>
+      <h2>In die Höhe bauen</h2>
+    </div>
+    <ol class="schritte">
+      <li><strong>Steher setzen</strong>
+        Ersten Rahmen auf die Unterlage legen, oben auf jede Kugel von Hand
+        einen Connie schrauben. Sechs 350er-Rohre aufstecken und mit dem langen
+        Inbus satt anziehen. Pro Höhenelement brauchst du 1 Rahmen, 6 Rohre 350
+        und 12 Connies.</li>
+      <li><strong>Nächsten Rahmen aufsetzen</strong>
+        Connies in den nächsten Rahmen einschrauben (max. 2 Umdrehungen),
+        Rahmen auf die Steher setzen – notfalls mit leichten Schlägen des
+        Kunststoffhammers fügen – und festziehen. Dabei Rohr und Kugel fest
+        zusammendrücken, damit kein Spalt bleibt. Wiederholen bis zur
+        Zielhöhe, oben mit dem Abschlussrahmen enden.</li>
+      <li><strong>Winkel prüfen</strong>
+        Nach jedem Festziehen die rechten Winkel mit dem Anschlagwinkel
+        kontrollieren und ggf. korrigieren – bei kurzen Rohren hilft der
+        Kunststoffhammer. Profis nutzen einen Montagewinkel, der aufs Rohr
+        geschoben und festgeklemmt wird.</li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Phase 3</span>
+      <h2>Schlitzrohre: seitlich und schräg anbauen</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag tag-blau">Standard</span>
+        <h3>Erweiterung mit Schlitzrohren</h3>
+        <p>Wird an ein bestehendes Regal angebaut, kommen Schlitzrohre zum
+        Einsatz: Rohre mit zwei Montageschlitzen und vormontierten Verbindern.
+        Die Schlitze verhindern, dass die Schraube in die Rohrmitte rutscht.
+        Ablauf: Schlitzrohre einseitig am Regal befestigen (Schlitze exakt
+        waagerecht!), Winkel prüfen, dann die zweite Regalhälfte aufschieben
+        und beidseitig festziehen.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-blau">Spezial</span>
+        <h3>Rohre mit Endfräsung &amp; Trapez</h3>
+        <p>Für T-Verbindungen ohne Kugel gibt es Rohre mit Endfräsung
+        (Typ 3–6, ein- oder beidseitig gefräst) plus Gewindehülse: Verbinder
+        leicht ansetzen, runde Aussparung muss auf dem Querrohr aufliegen,
+        dann mit 20&nbsp;Nm anziehen. Montageschlitze grundsätzlich nach hinten.
+        Für runde Theken werden Trapez-Schlitzrohre exakt im 75°-Winkel
+        gefügt; das erste Trapezelement immer komplett mit Wänden bestücken,
+        bevor weitergebaut wird – Innenwände stets zum Trapezelement hin.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Phase 4</span>
+      <h2>Elemente einsetzen und nivellieren</h2>
+    </div>
+    <ol class="schritte">
+      <li><strong>Tablare zuerst oben</strong>
+        Mit den obersten Bodenelementen beginnen: rechte Seite mit 2&nbsp;mm
+        Abstand einführen (verhindert Kratzer an der Innenwand), nach rechts
+        schieben, linke Seite eindrücken. 750er-Tablare mit mindestens einer
+        Schraube je Rohr sichern (meist rechts – die asymmetrische Position
+        lässt Platz für ein Türschloss). Nicht vergessen: 750er-Bodenbleche haben
+        mittig zwei Löcher für eine zusätzliche Schraube ins Rohr. Sie erhöht die
+        Belastbarkeit des Tablars deutlich und wird in vielen Aufbau-Videos
+        weggelassen.</li>
+      <li><strong>Innenwände</strong>
+        Alle Innenwände in dieselbe Richtung einbauen (Grundregel: nach links).
+        Zwei Ecken in den Rahmen drücken und sichern, dann die anderen beiden.
+        Bei Montage neben bestehenden Elementen einen Montageschutz zwischen
+        die Bleche legen, damit nichts verkratzt.</li>
+      <li><strong>Seiten- und Rückwände</strong>
+        Immer von oben nach unten arbeiten, Element mittig oben halten, zwei
+        Ecken eindrücken, dann die restlichen. So schrammt nichts an den
+        unteren Wänden entlang.</li>
+      <li><strong>Nivellieren</strong>
+        Sechs Nivelliergleiter einschrauben und das Regal mit der Wasserwaage
+        exakt ausrichten – das entscheidet über die Funktion aller Türen.
+        Alternativ Rollen montieren (4 freilaufend, 2 arretierbar). Bei sehr
+        unebenen Böden: Gewindestift M8×1×15 plus zusätzliche Kugel als
+        Höhenausgleich. Auf harten Böden Filzgleiter unterlegen.</li>
+    </ol>
+    <div class="hinweis">
+      <strong>Tipp für hohe Lasten</strong>
+      Ab etwa 30&nbsp;kg Punktlast oder bei 500er-Tiefe zusätzlich
+      Schwerlastträger unter das Tablar setzen. Und: Regale ab einer gewissen
+      Höhe gehören an die Wand – die Grenzwerte stehen auf der Seite
+      <a href="sicherheit.html">Sicherheit</a>.
+    </div>
+  </section>
+
+  <div class="next-prev">
+    <a class="btn btn-ghost" href="werkzeug.html">← Werkzeug</a>
+    <a class="btn btn-primary" href="konfigurator.html">Weiter: Konfigurator →</a>
+  </div>
+</main>
+<footer><div class="footer-inner">
+<div><h4>Über dieses Projekt</h4>
+<p>Haller-Wissen ist eine private, nicht-kommerzielle Wissensplattform von Liebhabern des Haller-Systemmöbels – für alle, die selbst aufbauen, umbauen, restaurieren oder Ersatzteile suchen. Alle Texte sind eigenständig formulierte Zusammenfassungen aus eigener Praxiserfahrung und öffentlich zugänglichen technischen Unterlagen. Es besteht keine Verbindung zur USM U. Schärer Söhne AG (Münsingen, Schweiz). „USM“ und „USM Haller“ sind Marken ihrer jeweiligen Inhaber. Preise sind historische Beispielwerte aus eigenen Bestellungen 2024/25 und können abweichen. Arbeiten am Möbel erfolgen auf eigene Verantwortung.</p>
+<p style="margin-top:.8rem">Stand: September 2026</p></div>
+<div><h4>Alle Themen</h4><ul><li><a href="system.html">System &amp; Technik</a></li><li><a href="werkzeug.html">Werkzeug</a></li><li><a href="aufbau.html">Aufbau-Guide</a></li><li><a href="konfigurator.html">Regal-Konfigurator</a></li><li><a href="rechner.html">Teilerechner</a></li><li><a href="demontage.html">Demontage &amp; Umzug</a></li><li><a href="elemente.html">Tablare &amp; Wände</a></li><li><a href="tueren.html">Türen &amp; Schlösser</a></li><li><a href="komponenten.html">Auszüge &amp; Schubladen</a></li><li><a href="vitrine.html">Glasvitrine</a></li><li><a href="sicherheit.html">Sicherheit &amp; Wartung</a></li><li><a href="ersatzteile.html">Ersatzteile</a></li><li><a href="praxis.html">Werkstatt-Notizen</a></li></ul></div>
+</div></footer>
+</body>
+</html>

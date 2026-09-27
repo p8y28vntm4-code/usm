@@ -1,0 +1,1479 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Regal-Konfigurator · Haller-Wissen</title>
+<meta name="description" content="Regal in 3D planen: Raster, Farben, Wände, Türen, Stückliste mit Artikelnummern.">
+<style>
+  :root{
+    --ink:#24272a;
+    --ink-2:#555a60;
+    --line:#c9ccd0;
+    --line-2:#e6e8ea;
+    --ground:#f7f8f9;
+    --surface:#ffffff;
+    --orange:#e25303;      /* Reinorange RAL 2004 */
+    --orange-ink:#c24702;
+    --orange-soft:#fdeee4;
+    --enzian:#00557f;      /* Enzianblau RAL 5010 */
+    --enzian-soft:#e6f0f6;
+    --gruen:#3f7652;
+    --gruen-soft:#e5efe8;
+    --bar:#24272a;
+    --bar-ink:#cfd3d6;
+    --kugel-hi:#ffffff; --kugel-mid:#d8dbde; --kugel-lo:#8d9298;
+    --stage-a:#ffffff; --stage-b:#e4e7ea;
+    --radius:2px;
+    --maxw:1080px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --ink:#e7e9eb; --ink-2:#a9afb5; --line:#3d4247; --line-2:#2c3034;
+      --ground:#16181a; --surface:#1e2124;
+      --orange:#ff7a33; --orange-ink:#ff8f52; --orange-soft:#3a2317;
+      --enzian:#6fb3dc; --enzian-soft:#172a36;
+      --gruen:#7fbf94; --gruen-soft:#1a2b20;
+      --bar:#0e0f10; --bar-ink:#a9afb5;
+      --kugel-hi:#f4f5f6; --kugel-mid:#b9bdc1; --kugel-lo:#5e6368;
+      --stage-a:#4f555b; --stage-b:#32363a;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --ink:#e7e9eb; --ink-2:#a9afb5; --line:#3d4247; --line-2:#2c3034;
+    --ground:#16181a; --surface:#1e2124;
+    --orange:#ff7a33; --orange-ink:#ff8f52; --orange-soft:#3a2317;
+    --enzian:#6fb3dc; --enzian-soft:#172a36;
+    --gruen:#7fbf94; --gruen-soft:#1a2b20;
+    --bar:#0e0f10; --bar-ink:#a9afb5;
+    --kugel-hi:#f4f5f6; --kugel-mid:#b9bdc1; --kugel-lo:#5e6368;
+    --stage-a:#4f555b; --stage-b:#32363a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none!important}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    background:var(--ground);
+    color:var(--ink);
+    line-height:1.65;
+    font-size:16px;
+  }
+  ::selection{background:var(--orange);color:#fff}
+  h1,h2,h3,h4{line-height:1.15;letter-spacing:-0.01em;text-wrap:balance}
+  h1{font-size:clamp(2rem,6vw,4rem);font-weight:800}
+  h2{font-size:clamp(1.45rem,3.5vw,2.1rem);font-weight:700}
+  h3{font-size:1.12rem;font-weight:700}
+  p{max-width:68ch}
+  .eyebrow{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--orange);margin-bottom:.6rem;display:block}
+  a{color:var(--enzian)}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+  /* Kugel-Ecken */
+  .frame{position:relative;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:1.6rem 1.5rem}
+  .frame::before,.frame::after,.frame .b1::before,.frame .b1::after{
+    content:"";position:absolute;width:11px;height:11px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--kugel-hi) 0%, var(--kugel-mid) 45%, var(--kugel-lo) 100%);
+    border:1px solid var(--kugel-lo);
+  }
+  .frame::before{top:-6px;left:-6px}
+  .frame::after{top:-6px;right:-6px}
+  .frame .b1::before{bottom:-6px;left:-6px}
+  .frame .b1::after{bottom:-6px;right:-6px}
+  .b1{position:absolute;inset:0;pointer-events:none}
+
+  header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--ground);border-bottom:1.5px solid var(--line)}
+  .nav-inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;gap:.4rem 1rem;padding:.6rem 16px;flex-wrap:wrap}
+  .logo{font-weight:800;font-size:1.05rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.5rem}
+  .logo .dot{width:13px;height:13px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%, var(--kugel-hi) 0%, var(--kugel-mid) 45%, var(--kugel-lo) 100%);border:1px solid var(--kugel-lo)}
+  nav ul{display:flex;gap:.1rem;list-style:none;flex-wrap:wrap}
+  nav a{font-size:.8rem;font-weight:600;color:var(--ink-2);text-decoration:none;padding:.3rem .5rem;border-radius:var(--radius);display:block}
+  nav a:hover{color:var(--ink);background:var(--line-2)}
+  nav a[aria-current="page"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--orange)}
+
+  .hero{max-width:var(--maxw);margin:0 auto;padding:4rem 16px 2.5rem;display:grid;grid-template-columns:1.2fr .8fr;gap:3rem;align-items:center}
+  .hero h1 span{color:var(--orange)}
+  .hero .lead{font-size:1.1rem;color:var(--ink-2);margin-top:1.2rem}
+  .cta-row{margin-top:1.8rem;display:flex;gap:.8rem;flex-wrap:wrap}
+  .btn{display:inline-block;padding:.7rem 1.3rem;border-radius:var(--radius);font-weight:700;font-size:.92rem;text-decoration:none;border:1.5px solid transparent;cursor:pointer;font-family:inherit}
+  .btn-primary{background:var(--orange);color:#fff}
+  .btn-primary:hover{background:var(--orange-ink)}
+  .btn-ghost{border-color:var(--line);color:var(--ink);background:transparent}
+  .btn-ghost:hover{background:var(--line-2)}
+  .hero-art{display:flex;justify-content:center}
+  .hero-art svg{width:100%;max-width:340px;height:auto}
+  .hero-art .lbl{fill:var(--ink-2);font-family:Helvetica,Arial,sans-serif;font-size:11px}
+  .hero-art .bohrung{fill:var(--kugel-lo)}
+
+  .disclaimer-strip{background:var(--bar);color:var(--bar-ink);font-size:.78rem;text-align:center;padding:.45rem 16px}
+  .disclaimer-strip strong{color:#fff}
+
+  section{max-width:var(--maxw);margin:0 auto;padding:3rem 16px}
+  .section-head{margin-bottom:1.6rem;display:grid;gap:.4rem}
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem}
+  .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.4rem}
+  .card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:1.3rem 1.25rem}
+  .card h3{margin-bottom:.5rem}
+  .card p{font-size:.93rem;color:var(--ink-2)}
+  .card .tag,.tag{display:inline-block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:.15rem .5rem;border-radius:var(--radius);margin-bottom:.7rem}
+  .tag-orange{background:var(--orange-soft);color:var(--orange-ink)}
+  .tag-blau{background:var(--enzian-soft);color:var(--enzian)}
+  .tag-gruen{background:var(--gruen-soft);color:var(--gruen)}
+  .tag-grau{background:var(--line-2);color:var(--ink-2)}
+  .tag-neu{background:var(--orange);color:#fff}
+
+  ul.liste{padding-left:1.2rem;font-size:.95rem;color:var(--ink-2)}
+  ul.liste li{margin-bottom:.45rem}
+  ul.liste strong{color:var(--ink)}
+  ol.schritte{counter-reset:s;list-style:none;display:grid;gap:1rem;margin-top:1.2rem}
+  ol.schritte li{counter-increment:s;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.2rem 1.1rem 3.6rem;position:relative;font-size:.95rem;color:var(--ink-2)}
+  ol.schritte li::before{content:counter(s);position:absolute;left:1.05rem;top:1.05rem;width:1.7rem;height:1.7rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:var(--ground);background:var(--ink)}
+  ol.schritte li strong{display:block;margin-bottom:.2rem;color:var(--ink)}
+
+  .hinweis{border-left:4px solid var(--orange);background:var(--orange-soft);padding:1rem 1.2rem;border-radius:var(--radius);margin:1.4rem 0;font-size:.93rem}
+  .hinweis.blau{border-color:var(--enzian);background:var(--enzian-soft)}
+  .hinweis.gruen{border-color:var(--gruen);background:var(--gruen-soft)}
+  .hinweis strong{display:block;margin-bottom:.25rem}
+
+  table{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--surface)}
+  th,td{border:1.5px solid var(--line);padding:.55rem .8rem;text-align:left;vertical-align:top}
+  th{background:var(--line-2);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+  td{font-variant-numeric:tabular-nums}
+  .table-wrap{overflow-x:auto;margin-top:1rem}
+  .preis,.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .anr{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;font-weight:700}
+
+  .dreh-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:1.4rem}
+  .dreh{padding:1.4rem;text-align:center}
+  .dreh .pfeil{font-size:2.4rem;line-height:1;display:block;margin-bottom:.4rem}
+  .dreh h4{font-size:.95rem;margin-bottom:.5rem}
+  .dreh p{font-size:.85rem;color:var(--ink-2);margin:0 auto}
+  .dreh .merksatz{margin-top:.7rem;font-weight:700;font-size:.9rem}
+  .dreh .merksatz.loesen{color:var(--orange)}
+  .dreh .merksatz.fest{color:var(--enzian)}
+
+  details{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);margin-bottom:.8rem}
+  summary{cursor:pointer;font-weight:700;padding:1rem 1.2rem;font-size:.97rem;list-style:none;display:flex;justify-content:space-between;gap:1rem}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font-weight:400;font-size:1.3rem;color:var(--orange);flex:none}
+  details[open] summary::after{content:"–"}
+  details .antwort{padding:0 1.2rem 1.1rem;font-size:.93rem;color:var(--ink-2)}
+
+  .page-head{max-width:var(--maxw);margin:0 auto;padding:2.8rem 16px 0}
+  .page-head h1{font-size:clamp(1.8rem,4.5vw,2.9rem)}
+  .page-head .lead{color:var(--ink-2);margin-top:.8rem;font-size:1.05rem}
+  .crumb{font-size:.78rem;color:var(--ink-2);margin-bottom:1rem}
+  .crumb a{color:var(--ink-2);text-decoration:none}
+  .topic-card{display:block;text-decoration:none;color:inherit;transition:border-color .15s}
+  .topic-card:hover{border-color:var(--orange)}
+  .topic-card .mehr{font-size:.82rem;font-weight:700;color:var(--orange);margin-top:.7rem;display:inline-block}
+  .next-prev{display:flex;justify-content:space-between;gap:1rem;max-width:var(--maxw);margin:0 auto;padding:0 16px 3rem;flex-wrap:wrap}
+
+  /* Rechner */
+  .calc{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:1.4rem;align-items:start}
+  .calc form{display:grid;gap:1rem}
+  .feld{display:grid;gap:.3rem}
+  .feld label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+  .feld input,.feld select{font:inherit;font-size:1rem;padding:.55rem .7rem;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--ground);color:var(--ink);width:100%}
+  .feld-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .feld label.check{display:flex;gap:.55rem;align-items:center;font-size:.92rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);cursor:pointer}
+  .feld label.check input{width:1.05rem;height:1.05rem;padding:0;flex:none;accent-color:var(--orange)}
+  .summe{display:flex;gap:1.4rem;flex-wrap:wrap;margin-bottom:1rem}
+  .summe div{display:grid}
+  .summe b{font-size:1.9rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .summe span{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)}
+  .aussen{font-size:.88rem;color:var(--ink-2);margin-top:.8rem}
+
+  footer{background:var(--bar);color:var(--bar-ink);margin-top:3rem}
+  .footer-inner{max-width:var(--maxw);margin:0 auto;padding:2.5rem 16px;font-size:.85rem;display:grid;grid-template-columns:1.4fr 1fr;gap:2rem}
+  footer h4{color:#fff;margin-bottom:.6rem;font-size:.95rem}
+  footer a{color:#e8eaec}
+  footer ul{list-style:none;display:grid;gap:.3rem}
+
+
+  /* Konfigurator */
+  .presets{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:1rem}
+  .presets .ctl-title{margin-right:.3rem}
+  .chip-btn{font:inherit;font-size:.85rem;font-weight:600;padding:.4rem .8rem;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);cursor:pointer}
+  .chip-btn:hover{border-color:var(--orange)}
+  .konf-app{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:1.4rem;align-items:start}
+  .viewer{padding:1rem}
+  .viewer-bar{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .seg button{font:inherit;font-size:.82rem;font-weight:700;padding:.4rem .8rem;border:0;background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .seg button + button{border-left:1.5px solid var(--line)}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+  .btn-sm{padding:.45rem .85rem;font-size:.84rem}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .stage{position:relative;height:clamp(300px,44vw,520px);border-radius:var(--radius);background:linear-gradient(180deg,var(--stage-a) 0%,var(--stage-b) 100%);overflow:hidden}
+  .stage canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+  .stage canvas.dragging{cursor:grabbing}
+  .stage canvas.over{cursor:pointer}
+  .stage-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:1rem;color:var(--ink-2);font-size:.9rem;margin:0 auto}
+  .viewer-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.3rem 1rem;margin-top:.7rem;font-size:.85rem;color:var(--ink-2)}
+  .viewer-foot b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .viewer-hint{font-size:.8rem;color:var(--ink-2);margin-top:.35rem}
+  .meldung{margin-top:.6rem;font-size:.85rem;border-left:3px solid var(--orange);background:var(--orange-soft);padding:.5rem .7rem;border-radius:var(--radius)}
+  .ctl{padding:1rem}
+  .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1.5px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+  .tabs button{font:inherit;font-size:.82rem;font-weight:700;padding:.55rem .2rem;border:0;background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .tabs button + button{border-left:1.5px solid var(--line)}
+  .tabs button[aria-selected="true"]{background:var(--ink);color:var(--ground)}
+  .ctl-panel{display:grid;gap:1.1rem}
+  .ctl-group{display:grid;gap:.5rem}
+  .ctl-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)}
+  .ctl-note{font-size:.8rem;color:var(--ink-2);line-height:1.45}
+  .col-row{display:grid;grid-template-columns:4.4rem minmax(0,1fr) auto;gap:.5rem;align-items:center;font-size:.88rem}
+  .col-row.zwei{grid-template-columns:4.4rem minmax(0,1fr)}
+  .stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .stepper button{font:inherit;font-size:1rem;font-weight:700;width:2rem;height:2.1rem;border:0;background:transparent;color:var(--ink);cursor:pointer}
+  .stepper button:disabled{color:var(--line);cursor:not-allowed}
+  .stepper output{min-width:1.5rem;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;font-size:.92rem}
+  .konf select{font:inherit;font-size:.92rem;padding:.42rem .5rem;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--ground);color:var(--ink);width:100%}
+  .btn-row{display:flex;flex-wrap:wrap;gap:.5rem}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(2.1rem,1fr));gap:.45rem}
+  .swatch{aspect-ratio:1;max-width:100%;border-radius:50%;border:1.5px solid var(--line);cursor:pointer;padding:0}
+  .swatch[aria-checked="true"]{outline:3px solid var(--orange);outline-offset:2px}
+  .swatch.wie{background:linear-gradient(135deg,var(--surface) 49%,var(--line) 50%)}
+  .swatch-name{font-size:.85rem;color:var(--ink-2)}
+  .swatch-name b{color:var(--ink)}
+  .opt-list{display:grid;gap:.35rem}
+  .opt{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:var(--radius);cursor:pointer;font-size:.9rem;background:var(--surface)}
+  .opt input{margin-top:.25rem;accent-color:var(--orange);flex:none}
+  .opt small{display:block;color:var(--ink-2);font-size:.78rem;line-height:1.35}
+  .opt.is-off{opacity:.55;cursor:not-allowed}
+  .opt.is-on{border-color:var(--orange)}
+  .check-row{display:flex;gap:.5rem;align-items:center;font-size:.9rem;cursor:pointer}
+  .check-row input{accent-color:var(--orange);width:1.05rem;height:1.05rem}
+  .raster{position:relative;width:100%;margin:0 auto;border-bottom:2px solid var(--ink-2)}
+  .raster button{position:absolute;border:1.5px solid var(--ink-2);background:var(--surface);color:var(--ink);font:inherit;font-size:.7rem;font-weight:800;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .raster button[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--ground),inset 0 0 0 5px var(--ink);z-index:1}
+  .fach-kopf{display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;flex-wrap:wrap}
+  .fach-kopf h3{font-size:1rem}
+  .fach-kopf span{font-size:.85rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .parts-head{display:flex;flex-wrap:wrap;gap:.8rem 1rem;justify-content:space-between;align-items:flex-end;margin-bottom:1rem}
+  .status{display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;padding:.35rem .75rem;border-radius:999px}
+  .status.ok{background:var(--gruen-soft);color:var(--gruen)}
+  .status.warn{background:var(--orange-soft);color:var(--orange-ink)}
+  #teile tr.grp th{background:var(--surface);color:var(--orange-ink);font-size:.72rem;padding-top:.9rem}
+  #teile .muted{color:var(--ink-2);font-weight:400;font-family:inherit;font-size:.82rem}
+  #teile tfoot td{font-weight:800;background:var(--line-2)}
+  .hinweise{margin-top:1rem;display:grid;gap:.4rem;font-size:.88rem;color:var(--ink-2);padding-left:1.1rem;max-width:80ch}
+  .code-box{display:grid;gap:.5rem;margin-top:1rem;max-width:40rem}
+  .code-box label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+  .code-box input{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--ground);color:var(--ink);width:100%}
+  .fehler{color:var(--orange-ink);font-size:.85rem}
+  .kopie{width:100%;min-height:12rem;margin-top:1rem;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;padding:.6rem;border:1.5px solid var(--line);background:var(--ground);color:var(--ink)}
+  .nur-mobil{display:none}
+  @media (max-width:860px){
+    .konf-app{grid-template-columns:minmax(0,1fr)}
+    .stage{height:clamp(260px,78vw,440px)}
+    .nur-mobil{display:inline-block}
+  }
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr;padding-top:2.5rem;gap:1.5rem}
+    .hero-art{order:-1}
+    .hero-art svg{max-width:200px}
+    .grid-2,.grid-3,.dreh-grid,.footer-inner,.calc{grid-template-columns:minmax(0,1fr)}
+  }
+  @media (max-width:420px){ .feld-row{grid-template-columns:1fr} .summe{gap:.9rem} .summe b{font-size:1.5rem} }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.topic-card{transition:none}}
+
+</style>
+</head>
+<body>
+<div class="disclaimer-strip"><strong>Inoffizielles Community-Projekt</strong> – keine Verbindung zur USM U. Schärer Söhne AG. Frei formulierte Erfahrungs- und Wissenstexte, alle Angaben ohne Gewähr.</div>
+<header><div class="nav-inner"><a class="logo" href="index.html"><span class="dot"></span>Haller-Wissen</a>
+<nav aria-label="Hauptnavigation"><ul><li><a href="system.html">System</a></li><li><a href="werkzeug.html">Werkzeug</a></li><li><a href="aufbau.html">Aufbau</a></li><li><a href="konfigurator.html" aria-current="page">Konfigurator</a></li><li><a href="demontage.html">Demontage</a></li><li><a href="elemente.html">Elemente</a></li><li><a href="tueren.html">Türen</a></li><li><a href="komponenten.html">Auszüge</a></li><li><a href="vitrine.html">Vitrine</a></li><li><a href="sicherheit.html">Sicherheit</a></li><li><a href="ersatzteile.html">Ersatzteile</a></li><li><a href="praxis.html">Praxis</a></li></ul></nav></div></header>
+<main id="top">
+  <div class="page-head">
+    <div class="crumb"><a href="index.html">Start</a> / Konfigurator</div>
+    <span class="eyebrow">Planer</span>
+    <h1>Regal-Konfigurator</h1>
+    <p class="lead">Plane dein Regal Fach für Fach: Raster, Farben, Wände und Fronten.
+    Die 3D-Ansicht zeigt das Ergebnis sofort, die Stückliste darunter nennt
+    Artikelnummern und Beispielpreise.</p>
+  </div>
+
+  <section class="konf" aria-label="Konfigurator">
+    <div class="presets" role="group" aria-label="Vorlagen">
+      <span class="ctl-title">Vorlage laden</span>
+      <button type="button" class="chip-btn" id="vl-sideboard" data-vorlage="sideboard">Sideboard</button>
+      <button type="button" class="chip-btn" id="vl-regal" data-vorlage="regal">Regal 2 × 2</button>
+      <button type="button" class="chip-btn" id="vl-highboard" data-vorlage="highboard">Highboard</button>
+      <button type="button" class="chip-btn" id="vl-stufen" data-vorlage="stufen">Stufenregal</button>
+      <button type="button" class="chip-btn" id="vl-rollkorpus" data-vorlage="rollkorpus">Rollkorpus</button>
+      <button type="button" class="chip-btn" id="vl-buecher" data-vorlage="buecher">Bücherwand</button>
+    </div>
+
+    <div class="konf-app">
+      <div class="frame viewer"><span class="b1"></span>
+        <div class="viewer-bar">
+          <div class="seg" role="group" aria-label="Blickwinkel">
+            <button type="button" id="v-3d" aria-pressed="true">3D</button>
+            <button type="button" id="v-front" aria-pressed="false">Front</button>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" id="v-open">Fronten öffnen</button>
+        </div>
+        <div class="stage" id="stage">
+          <canvas id="cv" tabindex="0" aria-label="3D-Vorschau des Regals. Pfeiltasten drehen, Plus und Minus zoomen."></canvas>
+          <noscript><p class="stage-msg">Der Konfigurator braucht JavaScript.</p></noscript>
+        </div>
+        <div class="viewer-foot">
+          <span id="v-mass"></span>
+          <span id="v-sel"></span>
+        </div>
+        <p class="viewer-hint">Ziehen dreht das Regal, Mausrad oder zwei Finger zoomen.
+        Ein Klick auf ein Fach öffnet seine Einstellungen.
+        <button type="button" class="btn btn-ghost btn-sm nur-mobil" id="v-edit">Fach bearbeiten</button></p>
+        <p class="meldung" id="meldung" role="status" hidden></p>
+      </div>
+
+      <div class="card ctl" id="ctl">
+        <div class="tabs" role="tablist" aria-label="Einstellungen">
+          <button type="button" role="tab" id="tab-raster" aria-controls="panel" data-tab="raster">Raster</button>
+          <button type="button" role="tab" id="tab-farben" aria-controls="panel" data-tab="farben">Farben</button>
+          <button type="button" role="tab" id="tab-waende" aria-controls="panel" data-tab="waende">Wände</button>
+          <button type="button" role="tab" id="tab-fach" aria-controls="panel" data-tab="fach">Fach</button>
+        </div>
+        <div id="panel" class="ctl-panel" role="tabpanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stueckliste" aria-labelledby="sl-titel">
+    <div class="parts-head">
+      <div><span class="eyebrow">Ergebnis</span><h2 id="sl-titel">Stückliste</h2></div>
+      <span class="status" id="kipp"></span>
+    </div>
+    <div class="summe" id="summe"></div>
+    <div class="table-wrap">
+      <table id="teile">
+        <thead><tr><th scope="col">Menge</th><th scope="col">Art.-Nr.</th><th scope="col">Teil</th><th scope="col">Maß</th><th scope="col">Farbe</th><th scope="col">Stück</th><th scope="col">Summe</th></tr></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
+    <ul class="hinweise" id="hinweise"></ul>
+    <div class="btn-row" style="margin-top:1.2rem">
+      <button type="button" class="btn btn-primary" id="liste-kopieren">Stückliste kopieren</button>
+      <button type="button" class="btn btn-ghost" id="code-kopieren">Konfigurationscode kopieren</button>
+      <button type="button" class="btn btn-ghost" id="code-laden">Code laden</button>
+    </div>
+    <form class="code-box" id="code-form" hidden>
+      <label for="code-in">Konfigurationscode einfügen</label>
+      <input id="code-in" type="text" autocomplete="off" spellcheck="false" placeholder="Code aus der Zwischenablage">
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary btn-sm">Konfiguration laden</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="code-abbruch">Abbrechen</button>
+      </div>
+      <p class="fehler" id="code-fehler" hidden></p>
+    </form>
+    <textarea class="kopie" id="kopie" aria-label="Text zum Kopieren" readonly hidden></textarea>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Hintergrund</span>
+      <h2>So rechnet der Konfigurator</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Gerüst</h3>
+        <p>Jede Ecke eines Fachs bekommt vorn und hinten eine Kugel. Rohre verbinden
+        die Kugeln in Breite, Höhe und Tiefe, jedes Rohr hat an beiden Enden einen
+        Connie. Benachbarte Fächer teilen sich Kugeln und Rohre, deshalb zählt der
+        Konfigurator jedes Teil nur einmal.</p>
+      </div>
+      <div class="card">
+        <h3>Wände und Beschläge</h3>
+        <p>Innenwände haben Lochreihen, Außenwände nicht. Fächer mit Tür, Auszug oder
+        Zwischentablar bekommen links und rechts automatisch eine Wand mit Lochreihen,
+        weil die Beschläge dort eingeklemmt werden. Klapptüren gibt es nur in den Maßen
+        aus der Federtabelle der Montageanleitung.</p>
+      </div>
+      <div class="card">
+        <h3>Kippsicherheit</h3>
+        <p>Laut Montageanleitung muss ein Regal an die Wand, wenn es höher ist als
+        1417&nbsp;mm (Tiefe 250), 1984&nbsp;mm (Tiefe 350) oder 2835&nbsp;mm (Tiefe 500).
+        Der Konfigurator ergänzt dann zwei Verankerungssets. Rollen sind nur für kleine
+        Korpusse mit vier Rollen gedacht.</p>
+      </div>
+    </div>
+    <div class="hinweis blau">
+      <strong>Inoffizielles Planungswerkzeug</strong>
+      Keine Bestellfunktion, Maße, Farben und Preise ohne Gewähr. Für ein verbindliches
+      Angebot die Stückliste kopieren und an den Fachhandel schicken. Artikelnummern
+      stammen aus der Ersatzteilliste und aus eigenen Bestellungen; fehlende Nummern
+      sind als „auf Anfrage“ markiert. Ohne 3D geht es schneller mit dem
+      <a href="rechner.html">Teilerechner</a>.
+    </div>
+  </section>
+
+  <div class="next-prev">
+    <a class="btn btn-ghost" href="aufbau.html">← Aufbau-Guide</a>
+    <a class="btn btn-primary" href="rechner.html">Weiter: Teilerechner →</a>
+  </div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var RM = false;
+try { RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+/* ================= Stammdaten ================= */
+var BREITEN = [250, 350, 395, 500, 750];
+var HOEHEN = [100, 175, 250, 350, 395, 500, 750];
+var TIEFEN = [250, 350, 395, 500];
+var MAX_SP = 8, MAX_RE = 8;
+
+// Farbtöne am Bildschirm angenähert; Farbcodes nur, wo aus Bestellungen belegt
+var FARBEN = [
+  {id:'reinweiss', name:'Reinweiß', hex:'#EEEDE7'},
+  {id:'lichtgrau', name:'Lichtgrau', hex:'#CACDCA'},
+  {id:'mittelgrau', name:'Mittelgrau', hex:'#85888A'},
+  {id:'anthrazit', name:'Anthrazitgrau', hex:'#3A3E42', code:'33'},
+  {id:'graphit', name:'Graphitschwarz', hex:'#1E1F21'},
+  {id:'beige', name:'USM Beige', hex:'#CDBFA2'},
+  {id:'braun', name:'USM Braun', hex:'#5A4738'},
+  {id:'goldgelb', name:'Goldgelb', hex:'#DCA01E'},
+  {id:'reinorange', name:'Reinorange', hex:'#E25303', code:'26'},
+  {id:'rubinrot', name:'USM Rubinrot', hex:'#8A1D2C'},
+  {id:'gruen', name:'USM Grün', hex:'#2D7455'},
+  {id:'enzian', name:'Enzianblau', hex:'#0C4F7E'},
+  {id:'stahlblau', name:'Stahlblau', hex:'#243241'}
+];
+var FARB_IDX = {};
+FARBEN.forEach(function(f){ FARB_IDX[f.id] = f; });
+function farbe(id){ return FARB_IDX[id] || FARB_IDX.anthrazit; }
+
+var FRONT = {
+  offen:    {name:'Offen', kurz:'', info:'Ohne Front'},
+  klapp:    {name:'Klapptür', kurz:'K', info:'Öffnet nach unten, zwei Scheren halten sie waagrecht'},
+  auszug:   {name:'Auszugtür', kurz:'A', info:'Front auf Teleskopauszügen, fährt nach vorn. Meist in den unteren Reihen'},
+  einschub: {name:'Einschubtür', kurz:'E', info:'Klappt nach oben und fährt ins Fach. Empfohlen ab der 5. Reihe (über 1440 mm)'},
+  glas:     {name:'Glastür', kurz:'G', info:'Seitlich angeschlagen, mit verchromten Eckscharnieren'}
+};
+var FRONT_IDS = ['offen', 'klapp', 'auszug', 'einschub', 'glas'];
+
+// Federtabelle Klapptür (Metall) laut Montageanleitung: Breite x Höhe -> [links, rechts]
+var FEDERN = {
+  '350x350':['stark','keine'], '500x250':['stark','keine'], '500x395':['stark','stark'],
+  '750x350':['stark','stark'], '750x395':['stark','stark'], '395x350':['schwach','schwach'],
+  '500x175':['schwach','keine'], '500x350':['schwach','schwach'], '750x175':['schwach','keine'],
+  '750x250':['schwach','schwach']
+};
+var GRENZE = {250:1417, 350:1984, 395:1984, 500:2835};
+
+var WAND_BACK = [['metall','Metall'], ['perfo','Metall perforiert'], ['akustik','Akustik (perforiert mit Vlies)'], ['glas','Glas (ESG)'], ['offen','Offen']];
+var WAND_SEITE = [['metall','Metall'], ['perfo','Metall perforiert'], ['glas','Glas (ESG)'], ['offen','Offen']];
+var FUESSE = [['g36','Nivelliergleiter Ø 36 mm (Standard)'], ['g23','Nivelliergleiter Ø 23 mm (Sockelleiste, Verbinden)'], ['rollen','Rollen (nur bei einer Spalte)']];
+
+// Artikel mit Beispielpreisen (netto, EUR) aus eigenen Bestellungen 2024/25
+var ART = {
+  metall:  {'750x350':{nr:'11207', preis:42.81}, '750x250':{nr:'11213', preis:41.77}, '750x100':{nr:'16608', preis:36.29},
+            '500x500':{nr:'11204', preis:41.77}, '500x250':{nr:'11214', preis:32.93}, '350x350':{nr:'11211', preis:28.49}},
+  perfo:   {'500x350':{nr:'11726', preis:52.52}, '350x350':{nr:'11727', preis:43.68}},
+  akustik: {'750x350':{nr:'15836', preis:75.28}},
+  glas:    {'750x350':{nr:'18643', preis:64.45}, '350x350':{nr:'18646', preis:46.67}},
+  tuer:    {'750x350':{nr:'14263', preis:83.76}, '750x250':{nr:'14264', preis:81.72}},
+  einschub:{'750x350':{nr:'15020', preis:99.45}},
+  schlitz: {'750x500':{nr:'11803', preis:56.16}},
+  zwMetall:{'750x350':{nr:'11139', preis:44.40}},
+  zwGlas:  {'750x350':{nr:'18661', preis:64.45}, '350x350':{nr:'18666', preis:44.54}}
+};
+
+var VORLAGEN = {
+  sideboard: {name:'Sideboard', cols:[[750,2],[750,2],[750,2]], rows:[350,350], d:350, body:'anthrazit', front:'reinorange',
+    walls:['metall','metall','metall'], feet:'g36', cells:{'0,1':['klapp'], '1,1':['klapp'], '2,1':['klapp'], '0,0':['auszug'], '2,0':['auszug']}},
+  regal: {name:'Regal 2 × 2', cols:[[750,2],[750,2]], rows:[350,350], d:350, body:'lichtgrau', front:'',
+    walls:['metall','metall','metall'], feet:'g36', cells:{}},
+  highboard: {name:'Highboard', cols:[[750,4],[750,4]], rows:[350,350,350,350], d:350, body:'reinweiss', front:'',
+    walls:['metall','metall','metall'], feet:'g36',
+    cells:{'0,0':['auszug'], '1,0':['auszug'], '0,1':['klapp'], '1,1':['klapp'], '0,2':['glas','none','links'], '1,2':['glas','none','rechts'], '0,3':['einschub'], '1,3':['einschub']}},
+  stufen: {name:'Stufenregal', cols:[[750,3],[750,2],[750,1]], rows:[350,350,350], d:350, body:'enzian', front:'',
+    walls:['perfo','metall','offen'], feet:'g36', cells:{'0,2':['offen','glas']}},
+  rollkorpus: {name:'Rollkorpus', cols:[[500,2]], rows:[250,350], d:350, body:'graphit', front:'goldgelb',
+    walls:['metall','metall','metall'], feet:'rollen', cells:{'0,0':['auszug'], '0,1':['klapp']}},
+  buecher: {name:'Bücherwand', cols:[[750,6],[750,6],[750,6]], rows:[350,350,350,350,350,350], d:350, body:'reinweiss', front:'',
+    walls:['metall','metall','metall'], feet:'g36',
+    cells:{'0,0':['klapp'], '1,0':['klapp'], '2,0':['klapp'], '0,5':['einschub'], '1,5':['einschub'], '2,5':['einschub']}}
+};
+
+/* ================= Zustand und Regeln ================= */
+var LEER = {f:'offen', m:'none', h:'links'};
+var S, RES, TAB = 'raster', FRONT_HEX = '#3A3E42';
+
+function ausVorlage(id){
+  var v = VORLAGEN[id] || VORLAGEN.sideboard;
+  var s = {cols: v.cols.map(function(c){ return {w:c[0], n:c[1]}; }), rows: v.rows.slice(), d: v.d, body: v.body, front: v.front,
+    back: v.walls[0], so: v.walls[1], si: v.walls[2], feet: v.feet, filz: false, cells: {}, sel: '0,0'};
+  Object.keys(v.cells).forEach(function(k){ var c = v.cells[k]; s.cells[k] = {f: c[0] || 'offen', m: c[1] || 'none', h: c[2] || 'links'}; });
+  return s;
+}
+function zelle(s, i, j){ return s.cells[i + ',' + j] || LEER; }
+function setzeZelle(s, key, patch){
+  var c = s.cells[key] || LEER;
+  s.cells[key] = {f: patch.f !== undefined ? patch.f : c.f, m: patch.m !== undefined ? patch.m : c.m, h: patch.h !== undefined ? patch.h : c.h};
+}
+function frontGrund(f, w, h, d){
+  if (f === 'offen') return '';
+  if (f === 'klapp' || f === 'auszug'){
+    if (!FEDERN[w + 'x' + h]) return 'Kein Türmaß für ' + w + ' × ' + h + ' mm';
+    if (f === 'auszug' && d < 350) return 'Braucht mindestens 350 mm Tiefe';
+    return '';
+  }
+  if (f === 'einschub'){
+    if (h !== 350 || (w !== 750 && w !== 500)) return 'Nur für Fächer 750 × 350 oder 500 × 350 mm';
+    if (d < 350) return 'Braucht mindestens 350 mm Tiefe';
+    return '';
+  }
+  if (f === 'glas') return (w < 350 || h < 250) ? 'Erst ab 350 mm Breite und 250 mm Höhe' : '';
+  return 'Unbekannte Front';
+}
+function zwGrund(m, f, h){
+  if (m === 'none') return '';
+  if (h < 350) return 'Erst ab 350 mm Fachhöhe';
+  if (f === 'auszug' || f === 'einschub') return 'Nicht mit Auszug- oder Einschubtür kombinierbar';
+  return '';
+}
+function normalisiere(s, msgs){
+  if (!s.cols.length) s.cols.push({w:750, n:1});
+  if (s.cols.length > MAX_SP) s.cols.length = MAX_SP;
+  var maxN = 1;
+  s.cols.forEach(function(c){ c.n = Math.max(1, Math.min(MAX_RE, c.n | 0)); if (BREITEN.indexOf(c.w) < 0) c.w = 750; maxN = Math.max(maxN, c.n); });
+  s.rows = s.rows.slice(0, maxN).map(function(r){ return HOEHEN.indexOf(r) < 0 ? 350 : r; });
+  while (s.rows.length < maxN) s.rows.push(350);
+  if (TIEFEN.indexOf(s.d) < 0) s.d = 350;
+  if (s.feet === 'rollen' && s.cols.length > 1){
+    s.feet = 'g36';
+    msgs.push('Rollen sind nur für Korpusse mit einer Spalte gedacht, die Füße sind jetzt Nivelliergleiter.');
+  }
+  Object.keys(s.cells).forEach(function(k){
+    var p = k.split(','), i = +p[0], j = +p[1];
+    if (!(i < s.cols.length && j < s.cols[i].n)){ delete s.cells[k]; return; }
+    var c = s.cells[k], w = s.cols[i].w, h = s.rows[j], g = frontGrund(c.f, w, h, s.d);
+    if (g){ msgs.push(FRONT[c.f].name + ' in Spalte ' + (i + 1) + ', Reihe ' + (j + 1) + ' entfernt: ' + g + '.'); c.f = 'offen'; }
+    g = zwGrund(c.m, c.f, h);
+    if (g){ msgs.push('Zwischentablar in Spalte ' + (i + 1) + ', Reihe ' + (j + 1) + ' entfernt: ' + g + '.'); c.m = 'none'; }
+    if (c.f === 'offen' && c.m === 'none') delete s.cells[k];
+  });
+  var sp = String(s.sel).split(','), si = +sp[0], sj = +sp[1];
+  if (!(si >= 0 && si < s.cols.length && sj >= 0 && sj < s.cols[si].n)) s.sel = '0,0';
+}
+
+/* ================= Berechnung: Geometrie und Stückliste ================= */
+function Liste(){ this.zeilen = []; this.idx = {}; }
+Liste.prototype.add = function(gruppe, teil, mass, farbName, nr, preis, menge){
+  if (!menge) return;
+  var key = [gruppe, teil, mass, farbName, nr].join('|'), z = this.idx[key];
+  if (!z){
+    z = {gruppe: gruppe, teil: teil, mass: mass || '', farbe: farbName || '', nr: nr || '', preis: typeof preis === 'number' ? preis : null, menge: 0};
+    this.idx[key] = z; this.zeilen.push(z);
+  }
+  z.menge += menge;
+};
+var GRUPPEN = ['Gerüst', 'Tablare und Wände', 'Fronten und Beschläge', 'Innenausstattung', 'Sicherheit'];
+function cnr(e, f){ return e ? e.nr + '.' + (f.code || 'xx') : ''; }
+function mk(a, b){ return Math.max(a, b) + 'x' + Math.min(a, b); }
+function mt(a, b){ return Math.max(a, b) + ' × ' + Math.min(a, b) + ' mm'; }
+
+function berechne(s){
+  var C = s.cols.length, R = s.rows.length, D = s.d, i, j;
+  var body = farbe(s.body), front = s.front ? farbe(s.front) : body;
+  function has(a, b){ return a >= 0 && a < C && b >= 0 && b < s.cols[a].n; }
+  function braucht(a, b){ if (!has(a, b)) return false; var c = zelle(s, a, b); return c.f !== 'offen' || c.m !== 'none'; }
+  var X = [0], Y = [0];
+  for (i = 0; i < C; i++) X.push(X[i] + s.cols[i].w);
+  for (j = 0; j < R; j++) Y.push(Y[j] + s.rows[j]);
+  var r = {X: X, Y: Y, W: X[C], nodes: [], wT: [], hT: [], hF: [], vF: [], backs: [], cells: [], hmax: 0};
+
+  for (i = 0; i <= C; i++) for (j = 0; j <= R; j++)
+    if (has(i - 1, j - 1) || has(i, j - 1) || has(i - 1, j) || has(i, j)) r.nodes.push([i, j]);
+  for (i = 0; i < C; i++) for (j = 0; j <= R; j++) if (has(i, j) || has(i, j - 1)) r.wT.push([i, j]);
+  for (i = 0; i <= C; i++) for (j = 0; j < R; j++) if (has(i - 1, j) || has(i, j)) r.hT.push([i, j]);
+  for (i = 0; i < C; i++) for (j = 0; j <= R; j++) if (has(i, j) || has(i, j - 1)){
+    var unten = has(i, j - 1) ? zelle(s, i, j - 1) : null;
+    r.hF.push({i: i, j: j, type: unten && unten.f === 'einschub' ? 'schlitz' : 'metall'});
+  }
+  for (i = 0; i <= C; i++) for (j = 0; j < R; j++) if (has(i - 1, j) || has(i, j)){
+    var aussen = !(has(i - 1, j) && has(i, j)), zwang = braucht(i - 1, j) || braucht(i, j);
+    var t = aussen ? s.so : s.si;
+    if (zwang || (!aussen && t === 'metall')) t = 'loch';
+    if (t !== 'offen') r.vF.push({i: i, j: j, type: t});
+  }
+  for (i = 0; i < C; i++){
+    for (j = 0; j < s.cols[i].n; j++){
+      var c = zelle(s, i, j);
+      r.cells.push({i: i, j: j, w: s.cols[i].w, h: s.rows[j], f: c.f, m: c.m, hinge: c.h});
+      if (s.back !== 'offen') r.backs.push({i: i, j: j, type: s.back});
+    }
+    r.hmax = Math.max(r.hmax, Y[s.cols[i].n]);
+  }
+  r.breite = r.W + 25; r.tiefe = D + 25; r.hoehe = r.hmax + 25;
+  r.grenze = GRENZE[D]; r.anker = r.hoehe > r.grenze;
+
+  var L = new Liste(), G = GRUPPEN;
+  var nK = r.nodes.length * 2;
+  L.add(G[0], 'Kugel, verchromt', 'Ø 25 mm', '', '10751', 4.64, nK);
+  var rohre = {};
+  function rohr(len, n){ rohre[len] = (rohre[len] || 0) + n; }
+  r.wT.forEach(function(t){ rohr(s.cols[t[0]].w, 2); });
+  r.hT.forEach(function(t){ rohr(s.rows[t[1]], 2); });
+  rohr(D, r.nodes.length);
+  var nR = 0;
+  Object.keys(rohre).map(Number).sort(function(a, b){ return b - a; }).forEach(function(len){
+    nR += rohre[len];
+    L.add(G[0], 'Rohr, verchromt', len + ' mm', '', len === 750 ? '10741' : '', len === 750 ? 14.39 : null, rohre[len]);
+  });
+  L.add(G[0], 'Connector (Connie) M8×1', '', '', '12451', null, nR * 2);
+  var nFuss = r.nodes.filter(function(n){ return n[1] === 0; }).length * 2;
+  if (s.feet === 'rollen') L.add(G[0], 'Rolle, davon mind. 2 mit Feststeller', '', '', '', null, nFuss);
+  else {
+    var g23 = s.feet === 'g23';
+    L.add(G[0], 'Nivelliergleiter MF8', g23 ? 'Ø 23 mm' : 'Ø 36 mm', '', g23 ? '15168' : '15167', null, nFuss);
+    if (s.filz) L.add(G[0], 'Filz für Nivelliergleiter', g23 ? 'Ø 23 mm' : 'Ø 36 mm', '', g23 ? '16770' : '16771', null, nFuss);
+  }
+
+  var nEl = 0, glasFlaeche = false, tablar750 = false;
+  function flaeche(typ, a, b){
+    var k = mk(a, b), m = mt(a, b), e;
+    nEl++;
+    if (typ === 'metall'){ e = ART.metall[k]; L.add(G[1], 'Metallelement', m, body.name, cnr(e, body), e ? e.preis : null, 1); }
+    else if (typ === 'loch') L.add(G[1], 'Wand mit Lochreihen (Innenwand)', m, body.name, '', null, 1);
+    else if (typ === 'perfo'){ e = ART.perfo[k]; L.add(G[1], 'Metallelement perforiert', m, body.name, cnr(e, body), e ? e.preis : null, 1); }
+    else if (typ === 'akustik'){ e = ART.akustik[k]; L.add(G[1], 'Akustikelement, perforiert mit Vlies', m, body.name, cnr(e, body), e ? e.preis : null, 1); }
+    else if (typ === 'glas'){ glasFlaeche = true; e = ART.glas[k]; L.add(G[1], 'ESG-Glaselement inkl. 4 Stoffkleber', m, '', e ? e.nr : '', e ? e.preis : null, 1); }
+    else if (typ === 'schlitz'){ e = ART.schlitz[k]; L.add(G[1], 'Tablar mit Schlitzen zu Einschubtür', m, body.name, cnr(e, body), e ? e.preis : null, 1); }
+  }
+  r.hF.forEach(function(f){ if (s.cols[f.i].w === 750) tablar750 = true; flaeche(f.type, s.cols[f.i].w, D); });
+  r.vF.forEach(function(f){ flaeche(f.type, D, s.rows[f.j]); });
+  r.backs.forEach(function(b){ flaeche(b.type, s.cols[b.i].w, s.rows[b.j]); });
+
+  var nFr = 0, hat = {}, federn = {};
+  r.cells.forEach(function(c){
+    var w = c.w, h = c.h, m = w + ' × ' + h + ' mm', e;
+    hat[c.f] = true;
+    if (c.f === 'klapp' || c.f === 'auszug'){
+      nFr++;
+      e = ART.tuer[w + 'x' + h];
+      L.add(G[2], 'Tür ohne Beschläge', m, front.name, cnr(e, front), e ? e.preis : null, 1);
+      L.add(G[2], 'Griffset zu Klapp- und Ausziehtüren', '', '', '14131', 27.34, 1);
+      if (c.f === 'klapp'){
+        federn[w + ' × ' + h] = FEDERN[w + 'x' + h];
+        L.add(G[2], 'Schere 69 N', '', '', '18444', 18.67, 2);
+        L.add(G[2], 'Dämpferpaket zu Schere', '', '', '18450', 2.95, 2);
+        L.add(G[2], 'Anschlagschnäpper (Stopper)', '', '', '18470', 3.58, 2);
+        L.add(G[2], 'Befestigungsset für Schere Typ A', '', '', '18472', 26.67, 1);
+      } else {
+        var k350 = D === 350;
+        L.add(G[2], 'Teleskopauszug mit Endeinzug, links', D + ' mm', '', k350 ? '18453' : '', k350 ? 31.08 : null, 1);
+        L.add(G[2], 'Teleskopauszug mit Endeinzug, rechts', D + ' mm', '', k350 ? '18454' : '', k350 ? 31.08 : null, 1);
+        L.add(G[2], 'Tablarwinkel zu Ausziehtablar, links', D + ' mm', body.name, k350 ? '14108.' + (body.code || 'xx') : '', k350 ? 4.96 : null, 1);
+        L.add(G[2], 'Tablarwinkel zu Ausziehtablar, rechts', D + ' mm', body.name, k350 ? '14109.' + (body.code || 'xx') : '', k350 ? 4.96 : null, 1);
+        L.add(G[2], 'Befestigungsset zu Ausziehtablar', D + ' mm', '', k350 ? '18476' : '', k350 ? 21.63 : null, 1);
+      }
+    } else if (c.f === 'einschub'){
+      nFr++;
+      e = ART.einschub[w + 'x' + h];
+      L.add(G[2], 'Einschubtür ohne Beschläge', m, front.name, cnr(e, front), e ? e.preis : null, 1);
+      L.add(G[2], 'Führungsprofil rechts Einschubtür', '', '', '14998', 13.19, 1);
+      L.add(G[2], 'Führungsprofil links Einschubtür', '', '', '14999', 13.19, 1);
+      L.add(G[2], 'Einschubtür-Heber', w + ' mm', '', w === 750 ? '15019' : '', w === 750 ? 45.07 : null, 2);
+      L.add(G[2], 'Griffset zu Einschubtür', '', '', '15024', 26.67, 1);
+      L.add(G[2], 'Zubehörset für Einschubtür', '', '', '15234', 56.89, 1);
+    } else if (c.f === 'glas'){
+      nFr++;
+      var links = c.hinge !== 'rechts';
+      L.add(G[2], 'Glastür ohne Beschläge', m, '', '', null, 1);
+      L.add(G[2], 'Glastürscharnierset Typ Glas-Metall, Scharnier ' + (links ? 'links' : 'rechts'), '', '', links ? '11910' : '', links ? 62.23 : null, 1);
+      L.add(G[2], 'Glastürgriffset', '', '', '11434', 31.97, 1);
+    }
+    if (c.m === 'metall'){
+      e = ART.zwMetall[mk(w, D)];
+      L.add(G[3], 'Zwischentablar ohne Beschläge', mt(w, D), body.name, cnr(e, body), e ? e.preis : null, 1);
+      L.add(G[3], 'Zwischentablarträgerset mit Schraube', '', '', '11140', 21.34, 1);
+    } else if (c.m === 'glas'){
+      e = ART.zwGlas[mk(w, D)];
+      L.add(G[3], 'ESG-Glaszwischentablar ohne Beschläge', mt(w, D), '', e ? e.nr : '', e ? e.preis : null, 1);
+      L.add(G[3], 'Glaszwischentablarträger-Garnitur, verchromt', '', '', '11888', 23.37, 1);
+    }
+  });
+  if (r.anker) L.add(G[4], 'Verankerungsset Regal (Wandbefestigung)', '', '', '14342', null, 2);
+
+  var ord = {};
+  GRUPPEN.forEach(function(g, n){ ord[g] = n; });
+  L.zeilen = L.zeilen.map(function(z, n){ return [z, n]; })
+    .sort(function(a, b){ return (ord[a[0].gruppe] - ord[b[0].gruppe]) || (a[1] - b[1]); })
+    .map(function(p){ return p[0]; });
+  r.liste = L;
+  r.zahl = {kugeln: nK, rohre: nR, connies: nR * 2, elemente: nEl, fronten: nFr};
+
+  var hw = [];
+  var fehlCode = [];
+  [body, front].forEach(function(f){ if (!f.code && fehlCode.indexOf(f.name) < 0) fehlCode.push(f.name); });
+  if (fehlCode.length && L.zeilen.some(function(z){ return /\.xx$/.test(z.nr); }))
+    hw.push('Für ' + fehlCode.join(' und ') + ' ist kein Farbcode hinterlegt. „.xx“ bei der Bestellung durch den Code des Händlers ersetzen.');
+  if (L.zeilen.some(function(z){ return !z.nr; }))
+    hw.push('Positionen ohne Artikelnummer beim Händler mit Maß und Farbe anfragen.');
+  Object.keys(federn).forEach(function(k){ hw.push('Klapptür ' + k + ' mm: Feder links ' + federn[k][0] + ', rechts ' + federn[k][1] + ' (Federtabelle der Montageanleitung).'); });
+  if (hat.auszug) hw.push('Auszugtür: Ob der Auszugboden im Befestigungsset enthalten ist, beim Händler klären. Unter einer Auszugtür sitzt meist eine verkürzte Rückwand.');
+  if (hat.einschub) hw.push('Einschubtür: Führungsprofile passend zur Tiefe bestellen. Direkt darüber sitzt ein Tablar mit Schlitzen und Stoppern.');
+  if (glasFlaeche) hw.push('Glaselemente werden mit Glashaltern an den Kugeln geklemmt (z. B. 15082 Glashalter 90°, verchromt). Die Anzahl hängt von der Anordnung ab.');
+  if (tablar750) hw.push('Jedes 750er-Tablar mit mindestens einer Schraube je Rohr sichern (meist rechts). Die mittlere Zusatzschraube erhöht die Tragkraft.');
+  if (s.feet === 'rollen') hw.push('Rollen tragen je 50 kg, mindestens zwei brauchen einen Feststeller. Gegen Kippen bei offenen Auszügen hilft ein Gegengewicht (Set 395 = 12 kg, Set 750 = 16 kg).');
+  if (r.anker) hw.push('Höher als ' + r.grenze + ' mm bei ' + D + ' mm Tiefe: Das Regal muss mit zwei Verankerungssets an der Wand befestigt werden. Schrauben und Dübel passend zur Wand besorgen.');
+  hw.push('Beispielpreise netto aus eigenen Bestellungen 2024/25, ohne Gewähr. Kleinteile wie Klemmhalter und Schrauben sind nicht aufgeführt.');
+  r.hinweise = hw;
+  return r;
+}
+
+/* ================= Konfigurationscode ================= */
+function code(s){
+  var o = {v: 1, c: s.cols.map(function(c){ return [c.w, c.n]; }), r: s.rows, d: s.d, b: s.body, f: s.front,
+    w: [s.back, s.so, s.si], ft: s.feet, fz: s.filz ? 1 : 0, x: {}};
+  Object.keys(s.cells).forEach(function(k){ var c = s.cells[k]; o.x[k] = [c.f, c.m, c.h]; });
+  return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function wahl(liste, v, d){ return liste.indexOf(v) >= 0 ? v : d; }
+function ausCode(str){
+  str = String(str || '').trim();
+  var p = str.indexOf('cfg-');
+  if (p >= 0) str = str.slice(p + 4);
+  str = str.replace(/[^A-Za-z0-9_-]/g, '');
+  var b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (b64.length % 4) b64 += '=';
+  var o = JSON.parse(decodeURIComponent(escape(atob(b64))));
+  if (!o || o.v !== 1 || !Array.isArray(o.c) || !o.c.length) throw new Error('Code ungültig');
+  var w = Array.isArray(o.w) ? o.w : [];
+  var s = {
+    cols: o.c.slice(0, MAX_SP).map(function(c){ return {w: wahl(BREITEN, +c[0], 750), n: Math.max(1, Math.min(MAX_RE, parseInt(c[1], 10) || 1))}; }),
+    rows: (Array.isArray(o.r) ? o.r : []).slice(0, MAX_RE).map(function(x){ return wahl(HOEHEN, +x, 350); }),
+    d: wahl(TIEFEN, +o.d, 350), body: FARB_IDX[o.b] ? o.b : 'anthrazit', front: FARB_IDX[o.f] ? o.f : '',
+    back: wahl(['metall', 'perfo', 'akustik', 'glas', 'offen'], w[0], 'metall'),
+    so: wahl(['metall', 'perfo', 'glas', 'offen'], w[1], 'metall'),
+    si: wahl(['metall', 'perfo', 'glas', 'offen'], w[2], 'metall'),
+    feet: wahl(['g36', 'g23', 'rollen'], o.ft, 'g36'), filz: o.fz === 1, cells: {}, sel: '0,0'
+  };
+  Object.keys(o.x || {}).forEach(function(k){
+    if (!/^[0-7],[0-7]$/.test(k)) return;
+    var v = Array.isArray(o.x[k]) ? o.x[k] : [];
+    s.cells[k] = {f: wahl(FRONT_IDS, v[0], 'offen'), m: wahl(['none', 'metall', 'glas'], v[1], 'none'), h: v[2] === 'rechts' ? 'rechts' : 'links'};
+  });
+  return s;
+}
+var LS_KEY = 'haller-wissen-konfigurator';
+function speichern(){ try { localStorage.setItem(LS_KEY, code(S)); } catch (e) {} }
+function startZustand(){
+  try { if (location.hash && location.hash.indexOf('#cfg-') === 0) return ausCode(location.hash.slice(5)); } catch (e) {}
+  try { var c = localStorage.getItem(LS_KEY); if (c) return ausCode(c); } catch (e) {}
+  return ausVorlage('sideboard');
+}
+
+/* ================= Oberfläche ================= */
+function opts(list, val, suffix){
+  return list.map(function(v){ return '<option value="' + v + '"' + (v === val ? ' selected' : '') + '>' + v + suffix + '</option>'; }).join('');
+}
+function auswahl(id, label, list, val){
+  return '<div class="ctl-group"><label class="ctl-title" for="' + id + '">' + label + '</label><select id="' + id + '">' +
+    list.map(function(o){ return '<option value="' + o[0] + '"' + (o[0] === val ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
+    '</select></div>';
+}
+function codeText(f){ return f.code ? 'Farbcode .' + f.code : 'Farbcode beim Händler erfragen'; }
+function hexRGB(h){ var n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function hell(h){ var c = hexRGB(h); return (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) > 150; }
+function pct(a, b){ return (a / b * 100).toFixed(3) + '%'; }
+function cm(mm){ return (mm / 10).toLocaleString('de-DE', {maximumFractionDigits: 1}); }
+function eur(x){ return x.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €'; }
+
+function htmlRasterTab(){
+  var h = '<div class="ctl-group"><div class="ctl-title">Spalten: Breite und Fächer übereinander</div>';
+  S.cols.forEach(function(c, i){
+    h += '<div class="col-row"><label for="cw-' + i + '">Spalte ' + (i + 1) + '</label>' +
+      '<select id="cw-' + i + '" data-col="' + i + '">' + opts(BREITEN, c.w, ' mm') + '</select>' +
+      '<span class="stepper" role="group" aria-label="Fächer übereinander in Spalte ' + (i + 1) + '">' +
+      '<button type="button" id="nm-' + i + '" data-act="n-" data-col="' + i + '" aria-label="Ein Fach weniger in Spalte ' + (i + 1) + '"' + (c.n <= 1 ? ' disabled' : '') + '>−</button>' +
+      '<output>' + c.n + '</output>' +
+      '<button type="button" id="np-' + i + '" data-act="n+" data-col="' + i + '" aria-label="Ein Fach mehr in Spalte ' + (i + 1) + '"' + (c.n >= MAX_RE ? ' disabled' : '') + '>+</button></span></div>';
+  });
+  h += '<div class="btn-row"><button type="button" class="btn btn-ghost btn-sm" id="sp-plus" data-act="col+"' + (S.cols.length >= MAX_SP ? ' disabled' : '') + '>Spalte hinzufügen</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" id="sp-minus" data-act="col-"' + (S.cols.length <= 1 ? ' disabled' : '') + '>Letzte Spalte entfernen</button></div></div>';
+  h += '<div class="ctl-group"><div class="ctl-title">Reihenhöhen, von unten</div>';
+  S.rows.forEach(function(x, j){
+    h += '<div class="col-row zwei"><label for="rh-' + j + '">Reihe ' + (j + 1) + '</label><select id="rh-' + j + '" data-row="' + j + '">' + opts(HOEHEN, x, ' mm') + '</select></div>';
+  });
+  h += '</div><div class="ctl-group"><label class="ctl-title" for="tiefe">Tiefe</label><select id="tiefe">' + opts(TIEFEN, S.d, ' mm') + '</select></div>';
+  h += '<p class="ctl-note">Rastermaße gelten von Kugelmitte zu Kugelmitte. Das Außenmaß ist in jeder Richtung 25 mm größer.</p>';
+  return h;
+}
+function htmlFarben(){
+  var b = farbe(S.body), f = S.front ? farbe(S.front) : null;
+  var h = '<div class="ctl-group"><div class="ctl-title" id="fk-titel">Korpus: Tablare und Wände</div><div class="swatches" role="radiogroup" aria-labelledby="fk-titel">';
+  FARBEN.forEach(function(x){
+    h += '<button type="button" class="swatch" role="radio" id="fk-' + x.id + '" data-act="body" data-val="' + x.id + '" aria-checked="' + (S.body === x.id) + '" aria-label="' + x.name + '" title="' + x.name + '" style="background:' + x.hex + '"></button>';
+  });
+  h += '</div><p class="swatch-name"><b>' + b.name + '</b> · ' + codeText(b) + '</p></div>';
+  h += '<div class="ctl-group"><div class="ctl-title" id="ff-titel">Fronten: Türen</div><div class="swatches" role="radiogroup" aria-labelledby="ff-titel">';
+  h += '<button type="button" class="swatch wie" role="radio" id="ff-wie" data-act="front" data-val="" aria-checked="' + (!S.front) + '" aria-label="Wie Korpus" title="Wie Korpus"></button>';
+  FARBEN.forEach(function(x){
+    h += '<button type="button" class="swatch" role="radio" id="ff-' + x.id + '" data-act="front" data-val="' + x.id + '" aria-checked="' + (S.front === x.id) + '" aria-label="' + x.name + '" title="' + x.name + '" style="background:' + x.hex + '"></button>';
+  });
+  h += '</div><p class="swatch-name"><b>' + (f ? f.name : 'Wie Korpus') + '</b>' + (f ? ' · ' + codeText(f) : '') + '</p></div>';
+  h += '<p class="ctl-note">Farbtöne am Bildschirm angenähert. Farbcodes sind nur dort eingetragen, wo sie aus echten Bestellungen stammen.</p>';
+  return h;
+}
+function htmlWaende(){
+  var h = auswahl('w-back', 'Rückwände', WAND_BACK, S.back) +
+    auswahl('w-so', 'Seitenwände außen', WAND_SEITE, S.so) +
+    auswahl('w-si', 'Innenwände zwischen den Fächern', WAND_SEITE, S.si);
+  h += '<p class="ctl-note">Neben Fächern mit Tür, Auszug oder Zwischentablar setzt der Konfigurator immer eine Wand mit Lochreihen, weil die Beschläge dort eingeklemmt werden.</p>';
+  h += '<div class="ctl-group"><label class="ctl-title" for="w-feet">Füße</label><select id="w-feet">' +
+    FUESSE.map(function(o){ var dis = o[0] === 'rollen' && S.cols.length > 1; return '<option value="' + o[0] + '"' + (S.feet === o[0] ? ' selected' : '') + (dis ? ' disabled' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>';
+  if (S.feet !== 'rollen') h += '<label class="check-row"><input type="checkbox" id="w-filz"' + (S.filz ? ' checked' : '') + '> Filz unter die Gleiter (Parkett, Laminat, Stein)</label>';
+  return h + '</div>';
+}
+function htmlRaster(){
+  var W = RES.W, H = RES.hmax, maxW = Math.max(120, Math.round(230 * W / H));
+  var h = '<div class="raster" role="group" aria-label="Fach auswählen" style="aspect-ratio:' + W + ' / ' + H + ';max-width:min(100%,' + maxW + 'px)">';
+  RES.cells.forEach(function(c){
+    var key = c.i + ',' + c.j, bg = 'var(--surface)', fg = 'var(--ink)';
+    if (c.f === 'glas'){ bg = 'var(--enzian-soft)'; fg = 'var(--enzian)'; }
+    else if (c.f !== 'offen'){ bg = FRONT_HEX; fg = hell(FRONT_HEX) ? '#1f2124' : '#ffffff'; }
+    var zw = c.m === 'none' ? '' : '<span aria-hidden="true" style="position:absolute;left:14%;right:14%;top:50%;border-top:2px ' + (c.m === 'glas' ? 'dashed' : 'solid') + ' currentColor;opacity:.55"></span>';
+    h += '<button type="button" id="rz-' + c.i + '-' + c.j + '" data-act="sel" data-cell="' + key + '" aria-pressed="' + (S.sel === key) + '"' +
+      ' aria-label="Spalte ' + (c.i + 1) + ', Reihe ' + (c.j + 1) + ': ' + FRONT[c.f].name + (c.m !== 'none' ? ', mit Zwischentablar' : '') + '"' +
+      ' style="left:' + pct(RES.X[c.i], W) + ';bottom:' + pct(RES.Y[c.j], H) + ';width:' + pct(c.w, W) + ';height:' + pct(c.h, H) + ';background:' + bg + ';color:' + fg + '">' +
+      FRONT[c.f].kurz + zw + '</button>';
+  });
+  return h + '</div>';
+}
+function htmlFach(){
+  var p = S.sel.split(','), i = +p[0], j = +p[1], w = S.cols[i].w, hh = S.rows[j], c = zelle(S, i, j);
+  var h = '<div class="ctl-group">' + htmlRaster() + '</div>';
+  h += '<div class="fach-kopf"><h3>Spalte ' + (i + 1) + ' · Reihe ' + (j + 1) + '</h3><span>' + w + ' × ' + hh + ' × ' + S.d + ' mm</span></div>';
+  h += '<div class="ctl-group"><div class="ctl-title" id="front-titel">Front</div><div class="opt-list" role="radiogroup" aria-labelledby="front-titel">';
+  FRONT_IDS.forEach(function(f){
+    var g = frontGrund(f, w, hh, S.d), an = c.f === f, info = g || FRONT[f].info;
+    if (!g && f === 'klapp'){ var fe = FEDERN[w + 'x' + hh]; info += '. Federn: links ' + fe[0] + ', rechts ' + fe[1]; }
+    h += '<label class="opt' + (g ? ' is-off' : '') + (an ? ' is-on' : '') + '"><input type="radio" name="front" id="fr-' + f + '" value="' + f + '"' + (an ? ' checked' : '') + (g ? ' disabled' : '') + '>' +
+      '<span>' + FRONT[f].name + '<small>' + info + '</small></span></label>';
+  });
+  h += '</div></div>';
+  if (c.f === 'glas'){
+    h += '<div class="ctl-group"><div class="ctl-title">Anschlag der Glastür</div><div class="seg" role="group" aria-label="Anschlag der Glastür">' +
+      '<button type="button" id="an-links" data-act="hinge" data-val="links" aria-pressed="' + (c.h !== 'rechts') + '">Scharnier links</button>' +
+      '<button type="button" id="an-rechts" data-act="hinge" data-val="rechts" aria-pressed="' + (c.h === 'rechts') + '">Scharnier rechts</button></div></div>';
+  }
+  var gm = zwGrund('metall', c.f, hh), gg = zwGrund('glas', c.f, hh);
+  h += '<div class="ctl-group"><label class="ctl-title" for="zw">Zwischentablar</label><select id="zw">' +
+    '<option value="none"' + (c.m === 'none' ? ' selected' : '') + '>Keins</option>' +
+    '<option value="metall"' + (c.m === 'metall' ? ' selected' : '') + (gm ? ' disabled' : '') + '>Metall' + (gm ? ' (' + gm + ')' : '') + '</option>' +
+    '<option value="glas"' + (c.m === 'glas' ? ' selected' : '') + (gg ? ' disabled' : '') + '>Glas, ESG' + (gg ? ' (' + gg + ')' : '') + '</option></select></div>';
+  h += '<div class="btn-row"><button type="button" class="btn btn-ghost btn-sm" id="ue-reihe" data-act="reihe">Auf ganze Reihe übertragen</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" id="ue-alle" data-act="alle">Auf alle Fächer übertragen</button></div>';
+  return h;
+}
+function renderPanel(){
+  var panel = $('panel'), akt = document.activeElement, fokusId = (akt && panel.contains(akt)) ? akt.id : '';
+  panel.innerHTML = TAB === 'raster' ? htmlRasterTab() : TAB === 'farben' ? htmlFarben() : TAB === 'waende' ? htmlWaende() : htmlFach();
+  panel.setAttribute('aria-labelledby', 'tab-' + TAB);
+  ['raster', 'farben', 'waende', 'fach'].forEach(function(t){
+    var b = $('tab-' + t);
+    b.setAttribute('aria-selected', t === TAB ? 'true' : 'false');
+    b.tabIndex = t === TAB ? 0 : -1;
+  });
+  if (fokusId && $(fokusId)){ try { $(fokusId).focus({preventScroll: true}); } catch (e) { $(fokusId).focus(); } }
+}
+function renderInfo(){
+  $('v-mass').innerHTML = 'Außenmaß ca. <b>' + cm(RES.breite) + ' × ' + cm(RES.tiefe) + ' × ' + cm(RES.hoehe) + ' cm</b> (B × T × H, ohne Füße)';
+  var p = S.sel.split(','), c = zelle(S, +p[0], +p[1]);
+  $('v-sel').innerHTML = 'Ausgewählt: <b>Spalte ' + (+p[0] + 1) + ', Reihe ' + (+p[1] + 1) + '</b> · ' + FRONT[c.f].name;
+  var hatFront = RES.cells.some(function(x){ return x.f !== 'offen'; }), bo = $('v-open');
+  if (!hatFront && V.openZiel){ V.openZiel = 0; V.open = 0; }
+  bo.disabled = !V.ok || !hatFront;
+  bo.textContent = V.openZiel ? 'Fronten schließen' : 'Fronten öffnen';
+  bo.setAttribute('aria-pressed', V.openZiel ? 'true' : 'false');
+  $('cv').setAttribute('aria-label', '3D-Vorschau: Regal mit ' + S.cols.length + (S.cols.length === 1 ? ' Spalte' : ' Spalten') + ', Korpus ' + farbe(S.body).name +
+    ', ' + RES.zahl.fronten + ' Fronten. Pfeiltasten drehen, Plus und Minus zoomen.');
+}
+function renderListe(){
+  var rows = '', grp = '', summe = 0, offen = 0;
+  RES.liste.zeilen.forEach(function(z){
+    if (z.gruppe !== grp){ grp = z.gruppe; rows += '<tr class="grp"><th colspan="7" scope="colgroup">' + grp + '</th></tr>'; }
+    var ges = z.preis !== null ? z.preis * z.menge : null;
+    if (ges !== null) summe += ges; else offen++;
+    rows += '<tr><td class="num"><strong>' + z.menge + '</strong></td>' +
+      '<td>' + (z.nr ? '<span class="anr">' + z.nr + '</span>' : '<span class="muted">auf Anfrage</span>') + '</td>' +
+      '<td>' + z.teil + '</td><td class="num">' + z.mass + '</td><td>' + z.farbe + '</td>' +
+      '<td class="preis">' + (z.preis !== null ? eur(z.preis) : '–') + '</td><td class="preis">' + (ges !== null ? eur(ges) : '–') + '</td></tr>';
+  });
+  $('teile').tBodies[0].innerHTML = rows;
+  $('teile').tFoot.innerHTML = '<tr><td colspan="6">Summe der Positionen mit Beispielpreis, netto</td><td class="preis">' + eur(summe) + '</td></tr>' +
+    '<tr><td colspan="7" class="muted">' + offen + (offen === 1 ? ' Position' : ' Positionen') + ' ohne Beispielpreis, der Gesamtpreis liegt entsprechend höher.</td></tr>';
+  var z = RES.zahl;
+  $('summe').innerHTML = [[z.kugeln, 'Kugeln'], [z.rohre, 'Rohre'], [z.connies, 'Connies'], [z.elemente, 'Elemente'], [z.fronten, 'Fronten']]
+    .map(function(x){ return '<div><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join('');
+  var k = $('kipp');
+  if (RES.anker){ k.className = 'status warn'; k.textContent = 'Wandverankerung nötig'; }
+  else if (S.feet === 'rollen' && RES.hoehe > 1100){ k.className = 'status warn'; k.textContent = 'Für Rollen zu hoch (über ca. 110 cm)'; }
+  else { k.className = 'status ok'; k.textContent = 'Keine Wandverankerung nötig (bis ' + RES.grenze + ' mm)'; }
+  $('hinweise').innerHTML = RES.hinweise.map(function(t){ return '<li>' + t + '</li>'; }).join('');
+}
+function zeigeMeldung(msgs){ var m = $('meldung'); if (msgs.length){ m.textContent = msgs.join(' '); m.hidden = false; } else { m.hidden = true; m.textContent = ''; } }
+function aktualisieren(struktur){
+  RES = berechne(S);
+  FRONT_HEX = (S.front ? farbe(S.front) : farbe(S.body)).hex;
+  renderPanel(); renderInfo(); renderListe();
+  if (V.ok){ baueModell(); if (struktur) einpassen(null, true); anfordern(); }
+}
+function aendern(fn, struktur){
+  var msgs = [];
+  fn(S, msgs);
+  normalisiere(S, msgs);
+  aktualisieren(struktur);
+  zeigeMeldung(msgs);
+  speichern();
+}
+function waehle(key, vonVorschau){
+  S.sel = key;
+  if (vonVorschau) TAB = 'fach';
+  renderPanel(); renderInfo(); anfordern(); speichern();
+}
+function uebertragen(art){
+  var p = S.sel.split(','), si = +p[0], sj = +p[1], q = zelle(S, si, sj);
+  aendern(function(s, msgs){
+    var n = 0, skip = 0;
+    s.cols.forEach(function(col, i){
+      for (var j = 0; j < col.n; j++){
+        if ((art === 'reihe' && j !== sj) || (i === si && j === sj)) continue;
+        if (frontGrund(q.f, col.w, s.rows[j], s.d)){ skip++; continue; }
+        s.cells[i + ',' + j] = {f: q.f, m: zwGrund(q.m, q.f, s.rows[j]) ? 'none' : q.m, h: q.h};
+        n++;
+      }
+    });
+    msgs.push('Auf ' + n + (n === 1 ? ' Fach' : ' Fächer') + ' übertragen' + (skip ? ', ' + skip + ' übersprungen, weil das Maß nicht passt' : '') + '.');
+  });
+}
+
+/* ================= 3D-Vorschau (Canvas, ohne Fremdbibliothek) ================= */
+var V = {ok: false, theta: -0.62, phi: 0.34, r: 3, rFit: 3, tgt: [0, 0.4, 0], fov: 0.52, open: 0, openZiel: 0,
+  statics: [], doors: [], boxes: [], boxMap: {}, bb: null, hover: null, tween: null, raf: 0, last: 0, W: 0, H: 0, dpr: 1};
+
+function add(a, b){ return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; }
+function sub(a, b){ return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+function mul(a, k){ return [a[0] * k, a[1] * k, a[2] * k]; }
+function dot(a, b){ return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+function cross(a, b){ return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+function laenge(a){ return Math.sqrt(dot(a, a)); }
+function norm(a){ var l = laenge(a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
+function rotX(v, a){ var c = Math.cos(a), s = Math.sin(a); return [v[0], v[1] * c - v[2] * s, v[1] * s + v[2] * c]; }
+function rotY(v, a){ var c = Math.cos(a), s = Math.sin(a); return [v[0] * c + v[2] * s, v[1], -v[0] * s + v[2] * c]; }
+function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
+function ease(t){ return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+var LICHT = norm([-0.45, 0.75, 0.55]), LICHT2 = norm([0.6, 0.2, 0.5]);
+var CHROM = [205, 210, 215], DUNKEL = [34, 36, 39];
+
+function kachel(out, a, e1, e2, n, rgb, typ, cull, ao, bias){
+  var glas = typ === 'glas';
+  var nu = glas ? 1 : Math.max(1, Math.ceil(laenge(e1) / 0.2)), nv = glas ? 1 : Math.max(1, Math.ceil(laenge(e2) / 0.2));
+  for (var u = 0; u < nu; u++) for (var v = 0; v < nv; v++){
+    var p0 = add(a, add(mul(e1, u / nu), mul(e2, v / nv)));
+    var p1 = add(p0, mul(e1, 1 / nu)), p3 = add(p0, mul(e2, 1 / nv)), p2 = add(p1, mul(e2, 1 / nv));
+    out.push({t: 'q', p: [p0, p1, p2, p3], n: n, rgb: rgb, typ: typ || 'metall', cull: !!cull, ao: ao || 1, bias: bias || 0});
+  }
+}
+function flaecheQ(out, a, b, d, typ, rgb, ao){
+  if (typ === 'offen') return;
+  var e1 = sub(b, a), e2 = sub(d, a);
+  kachel(out, a, e1, e2, norm(cross(e1, e2)), rgb, typ, false, ao, 0);
+}
+function quader(out, o, U, Vv, Wv, rgb, typ){
+  var nU = norm(U), nV = norm(Vv), nW = norm(Wv), neg = function(v){ return [-v[0], -v[1], -v[2]]; };
+  var o2 = add(o, Wv);
+  kachel(out, o2, U, Vv, nW, rgb, typ, true);
+  kachel(out, add(o, U), mul(U, -1), Vv, neg(nW), rgb, typ, true);
+  kachel(out, o, Wv, Vv, neg(nU), rgb, typ, true);
+  kachel(out, add(o, U), Vv, Wv, nU, rgb, typ, true);
+  kachel(out, o, U, Wv, neg(nV), rgb, typ, true);
+  kachel(out, add(o, Vv), Wv, U, nV, rgb, typ, true);
+}
+function rohrSeg(out, a, b, rad, typ){
+  var d = sub(b, a), n = Math.max(1, Math.ceil(laenge(d) / 0.16));
+  for (var i = 0; i < n; i++) out.push({t: typ || 'r', a: add(a, mul(d, i / n)), b: add(a, mul(d, (i + 1) / n)), rad: rad});
+}
+function griff(out, mitte, ex, ey, ez){
+  var a = add(add(mitte, mul(ex, -0.028)), add(mul(ey, -0.007), mul(ez, 0.0015)));
+  out.push({t: 'q', p: [a, add(a, mul(ex, 0.056)), add(add(a, mul(ex, 0.056)), mul(ey, 0.014)), add(a, mul(ey, 0.014))], n: ez, rgb: CHROM, typ: 'griff', cull: true, ao: 1, bias: -0.004});
+}
+
+function baueModell(){
+  var k = 0.001, s = S, r = RES, W = r.W, D = s.d;
+  var fussH = s.feet === 'rollen' ? 64 : 20, basis = fussH + 12.5;
+  function X(i){ return (r.X[i] - W / 2) * k; }
+  function Yb(j){ return (basis + r.Y[j]) * k; }
+  var zF = D / 2 * k, zB = -D / 2 * k, RB = 0.0125, RT = 0.0095, e = 0.011;
+  var body = hexRGB(farbe(s.body).hex), front = hexRGB(FRONT_HEX), P = [];
+
+  r.nodes.forEach(function(n){
+    P.push({t: 'k', c: [X(n[0]), Yb(n[1]), zF], rad: RB});
+    P.push({t: 'k', c: [X(n[0]), Yb(n[1]), zB], rad: RB});
+    rohrSeg(P, [X(n[0]), Yb(n[1]), zB + RB], [X(n[0]), Yb(n[1]), zF - RB], RT);
+  });
+  r.wT.forEach(function(t){ var y = Yb(t[1]); [zF, zB].forEach(function(z){ rohrSeg(P, [X(t[0]) + RB, y, z], [X(t[0] + 1) - RB, y, z], RT); }); });
+  r.hT.forEach(function(t){ var x = X(t[0]); [zF, zB].forEach(function(z){ rohrSeg(P, [x, Yb(t[1]) + RB, z], [x, Yb(t[1] + 1) - RB, z], RT); }); });
+  r.nodes.forEach(function(n){
+    if (n[1] !== 0) return;
+    [zF, zB].forEach(function(z){
+      var x = X(n[0]);
+      if (s.feet === 'rollen'){
+        P.push({t: 'w', c: [x, 0.025, z], rad: 0.025});
+        rohrSeg(P, [x, 0.035, z], [x, fussH * k, z], 0.009, 'f');
+      } else {
+        rohrSeg(P, [x, 0, z], [x, fussH * k, z], s.feet === 'g23' ? 0.0115 : 0.018, 'f');
+      }
+    });
+  });
+  r.hF.forEach(function(f){
+    var x0 = X(f.i) + e, x1 = X(f.i + 1) - e, y = Yb(f.j);
+    flaecheQ(P, [x0, y, zB + e], [x1, y, zB + e], [x0, y, zF - e], 'metall', body, 1);
+    if (f.type === 'schlitz'){
+      [x0 + 0.05, x1 - 0.06].forEach(function(xs){ kachel(P, [xs, y + 0.0015, zF - 0.09], [0.01, 0, 0], [0, 0, 0.07], [0, 1, 0], DUNKEL, 'griff', true, 1, -0.003); });
+    }
+  });
+  r.vF.forEach(function(f){ var x = X(f.i); flaecheQ(P, [x, Yb(f.j) + e, zB + e], [x, Yb(f.j) + e, zF - e], [x, Yb(f.j + 1) - e, zB + e], f.type, body, 0.95); });
+  r.backs.forEach(function(b){ flaecheQ(P, [X(b.i) + e, Yb(b.j) + e, zB], [X(b.i + 1) - e, Yb(b.j) + e, zB], [X(b.i) + e, Yb(b.j + 1) - e, zB], b.type, body, 0.88); });
+
+  var doors = [], boxes = [], boxMap = {};
+  r.cells.forEach(function(c){
+    var x0 = X(c.i), x1 = X(c.i + 1), y0 = Yb(c.j), y1 = Yb(c.j + 1), key = c.i + ',' + c.j;
+    var bx = {key: key, min: [x0 + 0.006, y0 + 0.006, zB + 0.006], max: [x1 - 0.006, y1 - 0.006, zF - 0.006]};
+    boxes.push(bx); boxMap[key] = bx;
+    if (c.m !== 'none'){ var ym = (y0 + y1) / 2; flaecheQ(P, [x0 + e, ym, zB + e], [x1 - e, ym, zB + e], [x0 + e, ym, zF - e], c.m === 'glas' ? 'glas' : 'metall', body, 1); }
+    if (c.f !== 'offen') doors.push({c: c, x0: x0, x1: x1, y0: y0, y1: y1, zF: zF, D: D * k});
+  });
+  V.statics = P; V.doors = doors; V.boxes = boxes; V.boxMap = boxMap; V.body = body; V.front = front;
+  V.bb = {min: [-W / 2 * k - RB, 0, zB - RB], max: [W / 2 * k + RB, (basis + r.hmax) * k + RB, zF + RB]};
+}
+
+function tuerPrims(d, p, out){
+  var c = d.c, k = 0.001, e = ease(p), dw = (c.w - 24) * k, dh = (c.h - 24) * k, dt = 0.014;
+  var cx = (d.x0 + d.x1) / 2, zf = d.zF - 0.002, ex = [1, 0, 0];
+  if (c.f === 'klapp' || c.f === 'auszug'){
+    var a = c.f === 'klapp' ? e * Math.PI * 0.47 : 0, slide = c.f === 'auszug' ? e * d.D * 0.68 : 0;
+    var piv = [cx, d.y0 + 0.012, zf + slide], ey = rotX([0, 1, 0], a), ez = rotX([0, 0, 1], a);
+    if (c.f === 'auszug'){
+      var bw = dw - 0.02, tief = d.D - 0.07, yb = d.y0 + 0.04, z1 = zf + slide - 0.02;
+      flaecheQ(out, [cx - bw / 2, yb, z1 - tief], [cx + bw / 2, yb, z1 - tief], [cx - bw / 2, yb, z1], 'metall', V.body, 0.95);
+    }
+    quader(out, add(add(piv, mul(ex, -dw / 2)), mul(ez, -dt)), mul(ex, dw), mul(ey, dh), mul(ez, dt), V.front, 'metall');
+    griff(out, add(piv, mul(ey, dh - 0.026)), ex, ey, ez);
+  } else if (c.f === 'einschub'){
+    var a1 = ease(Math.min(1, p * 2)), a2 = ease(Math.max(0, p * 2 - 1)), ang = -a1 * Math.PI / 2;
+    var piv2 = [cx, d.y1 - 0.012, zf - a2 * (dh + 0.03)], ey2 = rotX([0, 1, 0], ang), ez2 = rotX([0, 0, 1], ang);
+    quader(out, add(add(piv2, mul(ex, -dw / 2)), add(mul(ey2, -dh), mul(ez2, -dt))), mul(ex, dw), mul(ey2, dh), mul(ez2, dt), V.front, 'metall');
+    griff(out, add(piv2, mul(ey2, -dh + 0.026)), ex, ey2, ez2);
+  } else if (c.f === 'glas'){
+    var links = c.hinge !== 'rechts', g = (links ? -1 : 1) * e * 1.45;
+    var hx = links ? d.x0 + 0.012 : d.x1 - 0.012, piv3 = [hx, (d.y0 + d.y1) / 2, zf];
+    var ex3 = rotY([links ? 1 : -1, 0, 0], g), ez3 = rotY([0, 0, 1], g), ey3 = [0, 1, 0];
+    var A = add(piv3, mul(ey3, -dh / 2));
+    out.push({t: 'q', p: [A, add(A, mul(ex3, dw)), add(add(A, mul(ex3, dw)), mul(ey3, dh)), add(A, mul(ey3, dh))], n: ez3, rgb: [214, 232, 228], typ: 'glas', cull: false, ao: 1, bias: 0});
+    [[0, 0, 1, 1], [dw, 0, -1, 1], [0, dh, 1, -1], [dw, dh, -1, -1]].forEach(function(q){
+      var ecke = add(add(A, mul(ex3, q[0])), add(mul(ey3, q[1]), mul(ez3, 0.002)));
+      var b1 = add(ecke, mul(ex3, 0.03 * q[2])), b2 = add(ecke, mul(ey3, 0.03 * q[3]));
+      out.push({t: 'q', p: [ecke, b1, b2, b2], n: ez3, rgb: CHROM, typ: 'griff', cull: false, ao: 1, bias: -0.004});
+    });
+    out.push({t: 'k', c: add(add(A, mul(ex3, dw - 0.03)), add(mul(ey3, dh / 2), mul(ez3, 0.012))), rad: 0.009});
+  }
+}
+
+function kamera(){
+  var cp = Math.cos(V.phi);
+  var eye = [V.tgt[0] + V.r * cp * Math.sin(V.theta), V.tgt[1] + V.r * Math.sin(V.phi), V.tgt[2] + V.r * cp * Math.cos(V.theta)];
+  var fwd = norm(sub(V.tgt, eye)), right = norm(cross(fwd, [0, 1, 0])), up = cross(right, fwd);
+  return {eye: eye, fwd: fwd, right: right, up: up, f: (V.H / 2) / Math.tan(V.fov / 2), cx: V.W / 2, cy: V.H / 2};
+}
+function proj(cam, p){
+  var d = sub(p, cam.eye), z = dot(d, cam.fwd);
+  return [cam.cx + cam.f * dot(d, cam.right) / z, cam.cy - cam.f * dot(d, cam.up) / z, z];
+}
+function licht(n){ return Math.min(1.04, 0.66 + 0.36 * Math.max(0, dot(n, LICHT)) + 0.08 * Math.max(0, dot(n, LICHT2))); }
+function farbStr(rgb, f){ return 'rgb(' + Math.min(255, Math.round(rgb[0] * f)) + ',' + Math.min(255, Math.round(rgb[1] * f)) + ',' + Math.min(255, Math.round(rgb[2] * f)) + ')'; }
+
+function projiziere(q, cam){
+  if (q.t === 'q'){
+    var s0 = proj(cam, q.p[0]), s1 = proj(cam, q.p[1]), s2 = proj(cam, q.p[2]), s3 = proj(cam, q.p[3]);
+    if (s0[2] < 0.05 || s1[2] < 0.05 || s2[2] < 0.05 || s3[2] < 0.05) return null;
+    var mitte = mul(add(q.p[0], q.p[2]), 0.5), sicht = dot(q.n, sub(cam.eye, mitte));
+    if (q.cull && sicht <= 0) return null;
+    var n = sicht >= 0 ? q.n : [-q.n[0], -q.n[1], -q.n[2]];
+    return {k: 'q', s: [s0, s1, s2, s3], z: (s0[2] + s1[2] + s2[2] + s3[2]) / 4 + q.bias, q: q, I: licht(n) * q.ao};
+  }
+  if (q.t === 'r' || q.t === 'f'){
+    var a = proj(cam, q.a), b = proj(cam, q.b);
+    if (a[2] < 0.05 || b[2] < 0.05) return null;
+    return {k: q.t, a: a, b: b, z: (a[2] + b[2]) / 2 - (q.t === 'r' ? 0.02 : 0.01), q: q};
+  }
+  var c = proj(cam, q.c);
+  if (c[2] < 0.05) return null;
+  return {k: q.t, c: c, z: c[2] - (q.t === 'k' ? 0.03 : 0.01), q: q};
+}
+function strich(ctx, a, b, farbe, breite, kappe){
+  ctx.strokeStyle = farbe; ctx.lineWidth = breite; ctx.lineCap = kappe;
+  ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+}
+function male(ctx, it, cam){
+  var q = it.q;
+  if (it.k === 'q'){
+    var s = it.s;
+    ctx.beginPath(); ctx.moveTo(s[0][0], s[0][1]); ctx.lineTo(s[1][0], s[1][1]); ctx.lineTo(s[2][0], s[2][1]); ctx.lineTo(s[3][0], s[3][1]); ctx.closePath();
+    if (q.typ === 'glas'){
+      ctx.fillStyle = 'rgba(205,228,224,0.24)'; ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1; ctx.stroke();
+      return;
+    }
+    var col = farbStr(q.rgb, it.I * (q.typ === 'akustik' ? 0.84 : 1));
+    ctx.fillStyle = col; ctx.fill();
+    ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.lineJoin = 'round'; ctx.stroke();
+    if ((q.typ === 'perfo' || q.typ === 'akustik') && V.muster){ ctx.fillStyle = V.muster; ctx.fill(); }
+    return;
+  }
+  var z;
+  if (it.k === 'r'){
+    z = (it.a[2] + it.b[2]) / 2;
+    var w = Math.max(1.2, 2 * q.rad * cam.f / z);
+    strich(ctx, it.a, it.b, '#5f666d', w, 'round');
+    strich(ctx, it.a, it.b, '#b4bac0', w * 0.62, 'butt');
+    strich(ctx, it.a, it.b, '#f4f6f8', Math.max(0.6, w * 0.2), 'butt');
+    return;
+  }
+  if (it.k === 'f'){
+    z = (it.a[2] + it.b[2]) / 2;
+    var wf = Math.max(1.5, 2 * q.rad * cam.f / z);
+    strich(ctx, it.a, it.b, '#26282b', wf, 'butt');
+    strich(ctx, it.a, it.b, '#4b4f54', wf * 0.3, 'butt');
+    return;
+  }
+  var rr = Math.max(1.5, q.rad * cam.f / it.c[2]);
+  if (it.k === 'k'){
+    var g = ctx.createRadialGradient(it.c[0] - rr * 0.35, it.c[1] - rr * 0.4, rr * 0.08, it.c[0], it.c[1], rr);
+    g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, '#dde1e5'); g.addColorStop(0.8, '#7d848b'); g.addColorStop(1, '#555b61');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(it.c[0], it.c[1], rr, 0, 6.2832); ctx.fill();
+  } else {
+    ctx.fillStyle = '#232528'; ctx.beginPath(); ctx.arc(it.c[0], it.c[1], rr, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = '#6b7076'; ctx.beginPath(); ctx.arc(it.c[0], it.c[1], rr * 0.32, 0, 6.2832); ctx.fill();
+  }
+}
+function schatten(ctx, cam){
+  var bb = V.bb, m = 0.03, pts = [[bb.min[0] - m, 0.001, bb.min[2] - m], [bb.max[0] + m, 0.001, bb.min[2] - m], [bb.max[0] + m, 0.001, bb.max[2] + m], [bb.min[0] - m, 0.001, bb.max[2] + m]]
+    .map(function(p){ return proj(cam, p); });
+  if (pts.some(function(p){ return p[2] < 0.05; })) return;
+  ctx.save();
+  ctx.beginPath(); pts.forEach(function(p, i){ if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.closePath();
+  ctx.shadowColor = 'rgba(0,0,0,0.32)'; ctx.shadowBlur = 26 * V.dpr; ctx.fillStyle = 'rgba(0,0,0,0.14)'; ctx.fill();
+  ctx.restore();
+}
+function umriss(ctx, cam, key, linie, fuellung){
+  var b = V.boxMap[key];
+  if (!b) return;
+  var P = [], a;
+  for (a = 0; a < 8; a++) P.push(proj(cam, [a & 1 ? b.max[0] : b.min[0], a & 2 ? b.max[1] : b.min[1], a & 4 ? b.max[2] : b.min[2]]));
+  if (P.some(function(p){ return p[2] < 0.05; })) return;
+  if (fuellung){
+    ctx.beginPath(); ctx.moveTo(P[4][0], P[4][1]); ctx.lineTo(P[5][0], P[5][1]); ctx.lineTo(P[7][0], P[7][1]); ctx.lineTo(P[6][0], P[6][1]); ctx.closePath();
+    ctx.fillStyle = fuellung; ctx.fill();
+  }
+  ctx.strokeStyle = linie; ctx.lineWidth = 2 * V.dpr; ctx.lineCap = 'round';
+  ctx.beginPath();
+  [[0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3], [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]].forEach(function(k){
+    ctx.moveTo(P[k[0]][0], P[k[0]][1]); ctx.lineTo(P[k[1]][0], P[k[1]][1]);
+  });
+  ctx.stroke();
+}
+function zeichne(){
+  var ctx = V.ctx;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, V.W, V.H);
+  if (!V.bb || !V.W) return;
+  var cam = kamera(), prims = V.statics.slice(), liste = [], i;
+  schatten(ctx, cam);
+  V.doors.forEach(function(d){ tuerPrims(d, V.open, prims); });
+  for (i = 0; i < prims.length; i++){ var it = projiziere(prims[i], cam); if (it) liste.push(it); }
+  liste.sort(function(a, b){ return b.z - a.z; });
+  for (i = 0; i < liste.length; i++) male(ctx, liste[i], cam);
+  if (V.hover && V.hover !== S.sel) umriss(ctx, cam, V.hover, 'rgba(226,83,3,0.5)', null);
+  umriss(ctx, cam, S.sel, '#e25303', 'rgba(226,83,3,0.10)');
+}
+function anfordern(){ if (V.ok && !V.raf) V.raf = requestAnimationFrame(frame); }
+function frame(now){
+  V.raf = 0;
+  var weiter = false;
+  if (V.tween){
+    var t = Math.min(1, (now - V.tween.t0) / 550), e = ease(t), a = V.tween.von, b = V.tween.nach;
+    V.theta = a.theta + (b.theta - a.theta) * e; V.phi = a.phi + (b.phi - a.phi) * e; V.r = a.r + (b.r - a.r) * e;
+    V.tgt = [a.tgt[0] + (b.tgt[0] - a.tgt[0]) * e, a.tgt[1] + (b.tgt[1] - a.tgt[1]) * e, a.tgt[2] + (b.tgt[2] - a.tgt[2]) * e];
+    if (t >= 1) V.tween = null; else weiter = true;
+  }
+  if (V.open !== V.openZiel){
+    if (RM) V.open = V.openZiel;
+    else {
+      var dt = V.last ? Math.min(0.05, (now - V.last) / 1000) : 0.016, step = dt / 0.9;
+      V.open = V.openZiel > V.open ? Math.min(V.openZiel, V.open + step) : Math.max(V.openZiel, V.open - step);
+    }
+    if (V.open !== V.openZiel) weiter = true;
+  }
+  V.last = weiter ? now : 0;
+  zeichne();
+  if (weiter) anfordern();
+}
+function passDistanz(theta, phi, tgt){
+  var cp = Math.cos(phi), fwd = [-cp * Math.sin(theta), -Math.sin(phi), -cp * Math.cos(theta)];
+  var right = norm(cross(fwd, [0, 1, 0])), up = cross(right, fwd);
+  var tv = Math.tan(V.fov / 2) * 0.9, th = tv * (V.W / V.H), bb = V.bb, need = 0.5;
+  for (var a = 0; a < 8; a++){
+    var q = sub([a & 1 ? bb.max[0] : bb.min[0], a & 2 ? bb.max[1] : bb.min[1], a & 4 ? bb.max[2] : bb.min[2]], tgt);
+    var z = dot(q, fwd);
+    need = Math.max(need, Math.abs(dot(q, right)) / th - z, Math.abs(dot(q, up)) / tv - z);
+  }
+  return need;
+}
+function einpassen(modus, animiert){
+  if (!V.bb || !V.W) return;
+  var tgt = [(V.bb.min[0] + V.bb.max[0]) / 2, (V.bb.min[1] + V.bb.max[1]) / 2, (V.bb.min[2] + V.bb.max[2]) / 2];
+  var theta = V.theta, phi = V.phi;
+  if (modus === '3d'){ theta = -0.62; phi = 0.34; }
+  else if (modus === 'front'){ theta = 0; phi = 0.03; }
+  var r = passDistanz(theta, phi, tgt);
+  V.rFit = r;
+  if (!animiert || RM){ V.theta = theta; V.phi = phi; V.r = r; V.tgt = tgt; V.tween = null; anfordern(); return; }
+  var von = V.theta;
+  while (theta - von > Math.PI) von += 2 * Math.PI;
+  while (von - theta > Math.PI) von -= 2 * Math.PI;
+  V.tween = {t0: performance.now(), von: {theta: von, phi: V.phi, r: V.r, tgt: V.tgt.slice()}, nach: {theta: theta, phi: phi, r: r, tgt: tgt}};
+  anfordern();
+}
+function ansicht(modus){
+  $('v-3d').setAttribute('aria-pressed', modus === '3d' ? 'true' : 'false');
+  $('v-front').setAttribute('aria-pressed', modus === 'front' ? 'true' : 'false');
+}
+function setzeR(r){ V.r = clamp(r, V.rFit * 0.4, V.rFit * 2.6); anfordern(); }
+function treffer(px, py){
+  var cam = kamera(), dx = (px - cam.cx) / cam.f, dy = -(py - cam.cy) / cam.f;
+  var dir = norm(add(cam.fwd, add(mul(cam.right, dx), mul(cam.up, dy)))), best = null, bt = Infinity;
+  V.boxes.forEach(function(b){
+    var t0 = -Infinity, t1 = Infinity;
+    for (var a = 0; a < 3; a++){
+      if (Math.abs(dir[a]) < 1e-9){ if (cam.eye[a] < b.min[a] || cam.eye[a] > b.max[a]) return; continue; }
+      var ta = (b.min[a] - cam.eye[a]) / dir[a], tb = (b.max[a] - cam.eye[a]) / dir[a];
+      if (ta > tb){ var tmp = ta; ta = tb; tb = tmp; }
+      t0 = Math.max(t0, ta); t1 = Math.min(t1, tb);
+      if (t0 > t1) return;
+    }
+    if (t1 >= 0 && t0 < bt){ bt = t0; best = b.key; }
+  });
+  return best;
+}
+function lokal(e){ var r = V.cv.getBoundingClientRect(); return [(e.clientX - r.left) * V.dpr, (e.clientY - r.top) * V.dpr]; }
+function erzeugeMuster(){
+  var n = Math.max(5, Math.round(6 * V.dpr)), c = document.createElement('canvas');
+  c.width = n; c.height = n;
+  var g = c.getContext('2d');
+  g.fillStyle = 'rgba(0,0,0,0.38)'; g.beginPath(); g.arc(n / 2, n / 2, n * 0.2, 0, 6.2832); g.fill();
+  return V.ctx.createPattern(c, 'repeat');
+}
+function groesse(){
+  var st = $('stage'), w = st.clientWidth, h = st.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (!w || !h) return;
+  V.dpr = dpr; V.cv.width = Math.round(w * dpr); V.cv.height = Math.round(h * dpr); V.W = V.cv.width; V.H = V.cv.height;
+  V.muster = erzeugeMuster();
+  einpassen(V.eingepasst ? null : '3d', false);
+  V.eingepasst = true;
+  anfordern();
+}
+function initVorschau(){
+  var cv = $('cv'), ctx = null;
+  try { ctx = cv.getContext('2d'); } catch (e) {}
+  if (!ctx){
+    var m = document.createElement('p'); m.className = 'stage-msg';
+    m.textContent = 'Die 3D-Vorschau braucht einen aktuellen Browser. Fach-Raster und Stückliste funktionieren trotzdem.';
+    $('stage').appendChild(m); return;
+  }
+  V.cv = cv; V.ctx = ctx; V.ok = true;
+  var zeiger = {}, drag = null;
+  cv.addEventListener('pointerdown', function(e){
+    try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+    zeiger[e.pointerId] = [e.clientX, e.clientY];
+    var ids = Object.keys(zeiger);
+    if (ids.length === 1) drag = {x: e.clientX, y: e.clientY, moved: false};
+    else if (ids.length === 2){ var a = zeiger[ids[0]], b = zeiger[ids[1]]; drag = {pinch: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, r: V.r, moved: true}; }
+    V.tween = null;
+  });
+  cv.addEventListener('pointermove', function(e){
+    if (zeiger[e.pointerId]){
+      var vor = zeiger[e.pointerId], ids;
+      zeiger[e.pointerId] = [e.clientX, e.clientY];
+      ids = Object.keys(zeiger);
+      if (ids.length >= 2 && drag && drag.pinch){
+        var a = zeiger[ids[0]], b = zeiger[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+        if (d > 0){ setzeR(drag.r * drag.pinch / d); ansicht(null); }
+        return;
+      }
+      if (!drag) return;
+      if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 5){ drag.moved = true; cv.classList.add('dragging'); ansicht(null); }
+      if (drag.moved){ V.theta -= (e.clientX - vor[0]) * 0.0065; V.phi = clamp(V.phi + (e.clientY - vor[1]) * 0.0065, -0.05, 1.3); anfordern(); }
+      return;
+    }
+    if (e.pointerType === 'mouse'){
+      var p = lokal(e), key = treffer(p[0], p[1]);
+      if (key !== V.hover){ V.hover = key; cv.classList.toggle('over', !!key); anfordern(); }
+    }
+  });
+  function ende(e){
+    if (!zeiger[e.pointerId]) return;
+    delete zeiger[e.pointerId];
+    if (drag && !drag.moved && !drag.pinch && e.type === 'pointerup'){ var p = lokal(e), key = treffer(p[0], p[1]); if (key) waehle(key, true); }
+    if (!Object.keys(zeiger).length){ drag = null; cv.classList.remove('dragging'); }
+  }
+  cv.addEventListener('pointerup', ende);
+  cv.addEventListener('pointercancel', ende);
+  cv.addEventListener('pointerleave', function(){ if (V.hover){ V.hover = null; cv.classList.remove('over'); anfordern(); } });
+  cv.addEventListener('wheel', function(e){ e.preventDefault(); setzeR(V.r * Math.exp(e.deltaY * 0.0011)); ansicht(null); }, {passive: false});
+  cv.addEventListener('keydown', function(e){
+    var ok = true;
+    if (e.key === 'ArrowLeft') V.theta += 0.12;
+    else if (e.key === 'ArrowRight') V.theta -= 0.12;
+    else if (e.key === 'ArrowUp') V.phi = clamp(V.phi + 0.08, -0.05, 1.3);
+    else if (e.key === 'ArrowDown') V.phi = clamp(V.phi - 0.08, -0.05, 1.3);
+    else if (e.key === '+' || e.key === '=') setzeR(V.r * 0.9);
+    else if (e.key === '-') setzeR(V.r * 1.1);
+    else ok = false;
+    if (ok){ e.preventDefault(); ansicht(null); anfordern(); }
+  });
+  if (window.ResizeObserver) new ResizeObserver(groesse).observe($('stage'));
+  else window.addEventListener('resize', groesse);
+}
+
+/* ================= Ereignisse ================= */
+function kopiere(text, btn, label){
+  var ta = $('kopie');
+  function fallback(){ ta.value = text; ta.hidden = false; ta.focus(); ta.select(); btn.textContent = 'Text markiert, jetzt kopieren'; }
+  try {
+    if (!navigator.clipboard || !navigator.clipboard.writeText){ fallback(); return; }
+    navigator.clipboard.writeText(text).then(function(){
+      ta.hidden = true; btn.textContent = 'Kopiert';
+      setTimeout(function(){ btn.textContent = label; }, 1800);
+    }, fallback);
+  } catch (e) { fallback(); }
+}
+function listeAlsText(){
+  function pad(t, n){ t = String(t); while (t.length < n) t += ' '; return t; }
+  var zeilen = ['Regal-Konfiguration (Haller-Wissen, inoffiziell)',
+    'Raster: ' + S.cols.length + (S.cols.length === 1 ? ' Spalte' : ' Spalten') + ' (' + S.cols.map(function(c){ return c.w + ' mm × ' + c.n; }).join(', ') + '), Reihen ' + S.rows.join(' / ') + ' mm, Tiefe ' + S.d + ' mm',
+    'Farben: Korpus ' + farbe(S.body).name + ', Fronten ' + (S.front ? farbe(S.front).name : 'wie Korpus'),
+    'Außenmaß ca. ' + cm(RES.breite) + ' × ' + cm(RES.tiefe) + ' × ' + cm(RES.hoehe) + ' cm (B × T × H, ohne Füße)', '',
+    pad('Menge', 7) + pad('Art.-Nr.', 13) + 'Teil'];
+  RES.liste.zeilen.forEach(function(z){
+    zeilen.push(pad(z.menge, 7) + pad(z.nr || 'auf Anfrage', 13) + z.teil + (z.mass ? ', ' + z.mass : '') + (z.farbe ? ', ' + z.farbe : ''));
+  });
+  zeilen.push('', 'Konfigurationscode: ' + code(S));
+  return zeilen.join('\n');
+}
+function ladeVorlage(id){
+  S = ausVorlage(id);
+  normalisiere(S, []);
+  V.openZiel = 0; V.open = 0;
+  aktualisieren(true);
+  zeigeMeldung(['Vorlage „' + VORLAGEN[id].name + '“ geladen.']);
+  speichern();
+}
+
+function start(){
+  S = startZustand();
+  normalisiere(S, []);
+  initVorschau();
+  aktualisieren(false);
+  if (V.ok) groesse();
+
+  document.querySelector('.presets').addEventListener('click', function(e){
+    var b = e.target.closest('[data-vorlage]');
+    if (b) ladeVorlage(b.getAttribute('data-vorlage'));
+  });
+  var tabs = document.querySelector('.tabs');
+  tabs.addEventListener('click', function(e){
+    var b = e.target.closest('[data-tab]');
+    if (b){ TAB = b.getAttribute('data-tab'); renderPanel(); }
+  });
+  tabs.addEventListener('keydown', function(e){
+    var liste = ['raster', 'farben', 'waende', 'fach'], i = liste.indexOf(TAB);
+    if (e.key === 'ArrowRight') i = (i + 1) % 4; else if (e.key === 'ArrowLeft') i = (i + 3) % 4; else return;
+    e.preventDefault(); TAB = liste[i]; renderPanel(); $('tab-' + TAB).focus();
+  });
+  var panel = $('panel');
+  panel.addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]');
+    if (!b || b.disabled) return;
+    var act = b.getAttribute('data-act'), col = +b.getAttribute('data-col');
+    if (act === 'n-') aendern(function(s){ s.cols[col].n--; }, true);
+    else if (act === 'n+') aendern(function(s){ s.cols[col].n++; }, true);
+    else if (act === 'col+') aendern(function(s){ var l = s.cols[s.cols.length - 1]; s.cols.push({w: l.w, n: l.n}); }, true);
+    else if (act === 'col-') aendern(function(s){ s.cols.pop(); }, true);
+    else if (act === 'body') aendern(function(s){ s.body = b.getAttribute('data-val'); });
+    else if (act === 'front') aendern(function(s){ s.front = b.getAttribute('data-val'); });
+    else if (act === 'sel') waehle(b.getAttribute('data-cell'), false);
+    else if (act === 'hinge') aendern(function(s){ setzeZelle(s, s.sel, {h: b.getAttribute('data-val')}); });
+    else if (act === 'reihe' || act === 'alle') uebertragen(act);
+  });
+  panel.addEventListener('change', function(e){
+    var t = e.target, id = t.id;
+    if (/^cw-/.test(id)) aendern(function(s){ s.cols[+t.getAttribute('data-col')].w = +t.value; }, true);
+    else if (/^rh-/.test(id)) aendern(function(s){ s.rows[+t.getAttribute('data-row')] = +t.value; }, true);
+    else if (id === 'tiefe') aendern(function(s){ s.d = +t.value; }, true);
+    else if (id === 'w-back') aendern(function(s){ s.back = t.value; });
+    else if (id === 'w-so') aendern(function(s){ s.so = t.value; });
+    else if (id === 'w-si') aendern(function(s){ s.si = t.value; });
+    else if (id === 'w-feet') aendern(function(s){ s.feet = t.value; }, true);
+    else if (id === 'w-filz') aendern(function(s){ s.filz = t.checked; });
+    else if (t.name === 'front') aendern(function(s){ setzeZelle(s, s.sel, {f: t.value}); });
+    else if (id === 'zw') aendern(function(s){ setzeZelle(s, s.sel, {m: t.value}); });
+  });
+  $('v-3d').addEventListener('click', function(){ ansicht('3d'); einpassen('3d', true); });
+  $('v-front').addEventListener('click', function(){ ansicht('front'); einpassen('front', true); });
+  $('v-open').addEventListener('click', function(){ V.openZiel = V.openZiel ? 0 : 1; renderInfo(); anfordern(); });
+  $('v-edit').addEventListener('click', function(){
+    TAB = 'fach'; renderPanel();
+    $('ctl').scrollIntoView({behavior: RM ? 'auto' : 'smooth', block: 'start'});
+  });
+  $('liste-kopieren').addEventListener('click', function(){ kopiere(listeAlsText(), this, 'Stückliste kopieren'); });
+  $('code-kopieren').addEventListener('click', function(){ kopiere(code(S), this, 'Konfigurationscode kopieren'); });
+  $('code-laden').addEventListener('click', function(){ $('code-form').hidden = false; $('code-fehler').hidden = true; $('code-in').value = ''; $('code-in').focus(); });
+  $('code-abbruch').addEventListener('click', function(){ $('code-form').hidden = true; });
+  $('code-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    try {
+      var s = ausCode($('code-in').value);
+      S = s; normalisiere(S, []); V.openZiel = 0; V.open = 0;
+      aktualisieren(true); speichern();
+      $('code-form').hidden = true;
+      zeigeMeldung(['Konfiguration geladen.']);
+    } catch (x) {
+      var f = $('code-fehler');
+      f.textContent = 'Der Code lässt sich nicht lesen. Bitte den vollständigen Code einfügen.';
+      f.hidden = false;
+    }
+  });
+}
+start();
+})();
+</script>
+</main>
+<footer><div class="footer-inner">
+<div><h4>Über dieses Projekt</h4>
+<p>Haller-Wissen ist eine private, nicht-kommerzielle Wissensplattform von Liebhabern des Haller-Systemmöbels – für alle, die selbst aufbauen, umbauen, restaurieren oder Ersatzteile suchen. Alle Texte sind eigenständig formulierte Zusammenfassungen aus eigener Praxiserfahrung und öffentlich zugänglichen technischen Unterlagen. Es besteht keine Verbindung zur USM U. Schärer Söhne AG (Münsingen, Schweiz). „USM“ und „USM Haller“ sind Marken ihrer jeweiligen Inhaber. Preise sind historische Beispielwerte aus eigenen Bestellungen 2024/25 und können abweichen. Arbeiten am Möbel erfolgen auf eigene Verantwortung.</p>
+<p style="margin-top:.8rem">Stand: September 2026</p></div>
+<div><h4>Alle Themen</h4><ul><li><a href="system.html">System &amp; Technik</a></li><li><a href="werkzeug.html">Werkzeug</a></li><li><a href="aufbau.html">Aufbau-Guide</a></li><li><a href="konfigurator.html">Regal-Konfigurator</a></li><li><a href="rechner.html">Teilerechner</a></li><li><a href="demontage.html">Demontage &amp; Umzug</a></li><li><a href="elemente.html">Tablare &amp; Wände</a></li><li><a href="tueren.html">Türen &amp; Schlösser</a></li><li><a href="komponenten.html">Auszüge &amp; Schubladen</a></li><li><a href="vitrine.html">Glasvitrine</a></li><li><a href="sicherheit.html">Sicherheit &amp; Wartung</a></li><li><a href="ersatzteile.html">Ersatzteile</a></li><li><a href="praxis.html">Werkstatt-Notizen</a></li></ul></div>
+</div></footer>
+</body>
+</html>

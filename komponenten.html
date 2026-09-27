@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Auszüge &amp; Schubladen · Haller-Wissen</title>
+<meta name="description" content="Auszugtablare, Schubladen, Hängeregister, Schrägablage und Inos.">
+<style>
+  :root{
+    --ink:#24272a;
+    --ink-2:#555a60;
+    --line:#c9ccd0;
+    --line-2:#e6e8ea;
+    --ground:#f7f8f9;
+    --surface:#ffffff;
+    --orange:#e25303;      /* Reinorange RAL 2004 */
+    --orange-ink:#c24702;
+    --orange-soft:#fdeee4;
+    --enzian:#00557f;      /* Enzianblau RAL 5010 */
+    --enzian-soft:#e6f0f6;
+    --gruen:#3f7652;
+    --gruen-soft:#e5efe8;
+    --bar:#24272a;
+    --bar-ink:#cfd3d6;
+    --kugel-hi:#ffffff; --kugel-mid:#d8dbde; --kugel-lo:#8d9298;
+    --stage-a:#ffffff; --stage-b:#e4e7ea;
+    --radius:2px;
+    --maxw:1080px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --ink:#e7e9eb; --ink-2:#a9afb5; --line:#3d4247; --line-2:#2c3034;
+      --ground:#16181a; --surface:#1e2124;
+      --orange:#ff7a33; --orange-ink:#ff8f52; --orange-soft:#3a2317;
+      --enzian:#6fb3dc; --enzian-soft:#172a36;
+      --gruen:#7fbf94; --gruen-soft:#1a2b20;
+      --bar:#0e0f10; --bar-ink:#a9afb5;
+      --kugel-hi:#f4f5f6; --kugel-mid:#b9bdc1; --kugel-lo:#5e6368;
+      --stage-a:#4f555b; --stage-b:#32363a;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --ink:#e7e9eb; --ink-2:#a9afb5; --line:#3d4247; --line-2:#2c3034;
+    --ground:#16181a; --surface:#1e2124;
+    --orange:#ff7a33; --orange-ink:#ff8f52; --orange-soft:#3a2317;
+    --enzian:#6fb3dc; --enzian-soft:#172a36;
+    --gruen:#7fbf94; --gruen-soft:#1a2b20;
+    --bar:#0e0f10; --bar-ink:#a9afb5;
+    --kugel-hi:#f4f5f6; --kugel-mid:#b9bdc1; --kugel-lo:#5e6368;
+    --stage-a:#4f555b; --stage-b:#32363a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none!important}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    background:var(--ground);
+    color:var(--ink);
+    line-height:1.65;
+    font-size:16px;
+  }
+  ::selection{background:var(--orange);color:#fff}
+  h1,h2,h3,h4{line-height:1.15;letter-spacing:-0.01em;text-wrap:balance}
+  h1{font-size:clamp(2rem,6vw,4rem);font-weight:800}
+  h2{font-size:clamp(1.45rem,3.5vw,2.1rem);font-weight:700}
+  h3{font-size:1.12rem;font-weight:700}
+  p{max-width:68ch}
+  .eyebrow{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--orange);margin-bottom:.6rem;display:block}
+  a{color:var(--enzian)}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+  /* Kugel-Ecken */
+  .frame{position:relative;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:1.6rem 1.5rem}
+  .frame::before,.frame::after,.frame .b1::before,.frame .b1::after{
+    content:"";position:absolute;width:11px;height:11px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--kugel-hi) 0%, var(--kugel-mid) 45%, var(--kugel-lo) 100%);
+    border:1px solid var(--kugel-lo);
+  }
+  .frame::before{top:-6px;left:-6px}
+  .frame::after{top:-6px;right:-6px}
+  .frame .b1::before{bottom:-6px;left:-6px}
+  .frame .b1::after{bottom:-6px;right:-6px}
+  .b1{position:absolute;inset:0;pointer-events:none}
+
+  header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--ground);border-bottom:1.5px solid var(--line)}
+  .nav-inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;gap:.4rem 1rem;padding:.6rem 16px;flex-wrap:wrap}
+  .logo{font-weight:800;font-size:1.05rem;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:.5rem}
+  .logo .dot{width:13px;height:13px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%, var(--kugel-hi) 0%, var(--kugel-mid) 45%, var(--kugel-lo) 100%);border:1px solid var(--kugel-lo)}
+  nav ul{display:flex;gap:.1rem;list-style:none;flex-wrap:wrap}
+  nav a{font-size:.8rem;font-weight:600;color:var(--ink-2);text-decoration:none;padding:.3rem .5rem;border-radius:var(--radius);display:block}
+  nav a:hover{color:var(--ink);background:var(--line-2)}
+  nav a[aria-current="page"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--orange)}
+
+  .hero{max-width:var(--maxw);margin:0 auto;padding:4rem 16px 2.5rem;display:grid;grid-template-columns:1.2fr .8fr;gap:3rem;align-items:center}
+  .hero h1 span{color:var(--orange)}
+  .hero .lead{font-size:1.1rem;color:var(--ink-2);margin-top:1.2rem}
+  .cta-row{margin-top:1.8rem;display:flex;gap:.8rem;flex-wrap:wrap}
+  .btn{display:inline-block;padding:.7rem 1.3rem;border-radius:var(--radius);font-weight:700;font-size:.92rem;text-decoration:none;border:1.5px solid transparent;cursor:pointer;font-family:inherit}
+  .btn-primary{background:var(--orange);color:#fff}
+  .btn-primary:hover{background:var(--orange-ink)}
+  .btn-ghost{border-color:var(--line);color:var(--ink);background:transparent}
+  .btn-ghost:hover{background:var(--line-2)}
+  .hero-art{display:flex;justify-content:center}
+  .hero-art svg{width:100%;max-width:340px;height:auto}
+  .hero-art .lbl{fill:var(--ink-2);font-family:Helvetica,Arial,sans-serif;font-size:11px}
+  .hero-art .bohrung{fill:var(--kugel-lo)}
+
+  .disclaimer-strip{background:var(--bar);color:var(--bar-ink);font-size:.78rem;text-align:center;padding:.45rem 16px}
+  .disclaimer-strip strong{color:#fff}
+
+  section{max-width:var(--maxw);margin:0 auto;padding:3rem 16px}
+  .section-head{margin-bottom:1.6rem;display:grid;gap:.4rem}
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem}
+  .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.4rem}
+  .card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:1.3rem 1.25rem}
+  .card h3{margin-bottom:.5rem}
+  .card p{font-size:.93rem;color:var(--ink-2)}
+  .card .tag,.tag{display:inline-block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:.15rem .5rem;border-radius:var(--radius);margin-bottom:.7rem}
+  .tag-orange{background:var(--orange-soft);color:var(--orange-ink)}
+  .tag-blau{background:var(--enzian-soft);color:var(--enzian)}
+  .tag-gruen{background:var(--gruen-soft);color:var(--gruen)}
+  .tag-grau{background:var(--line-2);color:var(--ink-2)}
+  .tag-neu{background:var(--orange);color:#fff}
+
+  ul.liste{padding-left:1.2rem;font-size:.95rem;color:var(--ink-2)}
+  ul.liste li{margin-bottom:.45rem}
+  ul.liste strong{color:var(--ink)}
+  ol.schritte{counter-reset:s;list-style:none;display:grid;gap:1rem;margin-top:1.2rem}
+  ol.schritte li{counter-increment:s;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.2rem 1.1rem 3.6rem;position:relative;font-size:.95rem;color:var(--ink-2)}
+  ol.schritte li::before{content:counter(s);position:absolute;left:1.05rem;top:1.05rem;width:1.7rem;height:1.7rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:var(--ground);background:var(--ink)}
+  ol.schritte li strong{display:block;margin-bottom:.2rem;color:var(--ink)}
+
+  .hinweis{border-left:4px solid var(--orange);background:var(--orange-soft);padding:1rem 1.2rem;border-radius:var(--radius);margin:1.4rem 0;font-size:.93rem}
+  .hinweis.blau{border-color:var(--enzian);background:var(--enzian-soft)}
+  .hinweis.gruen{border-color:var(--gruen);background:var(--gruen-soft)}
+  .hinweis strong{display:block;margin-bottom:.25rem}
+
+  table{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--surface)}
+  th,td{border:1.5px solid var(--line);padding:.55rem .8rem;text-align:left;vertical-align:top}
+  th{background:var(--line-2);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+  td{font-variant-numeric:tabular-nums}
+  .table-wrap{overflow-x:auto;margin-top:1rem}
+  .preis,.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .anr{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;font-weight:700}
+
+  .dreh-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:1.4rem}
+  .dreh{padding:1.4rem;text-align:center}
+  .dreh .pfeil{font-size:2.4rem;line-height:1;display:block;margin-bottom:.4rem}
+  .dreh h4{font-size:.95rem;margin-bottom:.5rem}
+  .dreh p{font-size:.85rem;color:var(--ink-2);margin:0 auto}
+  .dreh .merksatz{margin-top:.7rem;font-weight:700;font-size:.9rem}
+  .dreh .merksatz.loesen{color:var(--orange)}
+  .dreh .merksatz.fest{color:var(--enzian)}
+
+  details{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);margin-bottom:.8rem}
+  summary{cursor:pointer;font-weight:700;padding:1rem 1.2rem;font-size:.97rem;list-style:none;display:flex;justify-content:space-between;gap:1rem}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font-weight:400;font-size:1.3rem;color:var(--orange);flex:none}
+  details[open] summary::after{content:"–"}
+  details .antwort{padding:0 1.2rem 1.1rem;font-size:.93rem;color:var(--ink-2)}
+
+  .page-head{max-width:var(--maxw);margin:0 auto;padding:2.8rem 16px 0}
+  .page-head h1{font-size:clamp(1.8rem,4.5vw,2.9rem)}
+  .page-head .lead{color:var(--ink-2);margin-top:.8rem;font-size:1.05rem}
+  .crumb{font-size:.78rem;color:var(--ink-2);margin-bottom:1rem}
+  .crumb a{color:var(--ink-2);text-decoration:none}
+  .topic-card{display:block;text-decoration:none;color:inherit;transition:border-color .15s}
+  .topic-card:hover{border-color:var(--orange)}
+  .topic-card .mehr{font-size:.82rem;font-weight:700;color:var(--orange);margin-top:.7rem;display:inline-block}
+  .next-prev{display:flex;justify-content:space-between;gap:1rem;max-width:var(--maxw);margin:0 auto;padding:0 16px 3rem;flex-wrap:wrap}
+
+  /* Rechner */
+  .calc{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:1.4rem;align-items:start}
+  .calc form{display:grid;gap:1rem}
+  .feld{display:grid;gap:.3rem}
+  .feld label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+  .feld input,.feld select{font:inherit;font-size:1rem;padding:.55rem .7rem;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--ground);color:var(--ink);width:100%}
+  .feld-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .feld label.check{display:flex;gap:.55rem;align-items:center;font-size:.92rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);cursor:pointer}
+  .feld label.check input{width:1.05rem;height:1.05rem;padding:0;flex:none;accent-color:var(--orange)}
+  .summe{display:flex;gap:1.4rem;flex-wrap:wrap;margin-bottom:1rem}
+  .summe div{display:grid}
+  .summe b{font-size:1.9rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .summe span{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)}
+  .aussen{font-size:.88rem;color:var(--ink-2);margin-top:.8rem}
+
+  footer{background:var(--bar);color:var(--bar-ink);margin-top:3rem}
+  .footer-inner{max-width:var(--maxw);margin:0 auto;padding:2.5rem 16px;font-size:.85rem;display:grid;grid-template-columns:1.4fr 1fr;gap:2rem}
+  footer h4{color:#fff;margin-bottom:.6rem;font-size:.95rem}
+  footer a{color:#e8eaec}
+  footer ul{list-style:none;display:grid;gap:.3rem}
+
+
+  /* Konfigurator */
+  .presets{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:1rem}
+  .presets .ctl-title{margin-right:.3rem}
+  .chip-btn{font:inherit;font-size:.85rem;font-weight:600;padding:.4rem .8rem;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);cursor:pointer}
+  .chip-btn:hover{border-color:var(--orange)}
+  .konf-app{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:1.4rem;align-items:start}
+  .viewer{padding:1rem}
+  .viewer-bar{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .seg button{font:inherit;font-size:.82rem;font-weight:700;padding:.4rem .8rem;border:0;background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .seg button + button{border-left:1.5px solid var(--line)}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+  .btn-sm{padding:.45rem .85rem;font-size:.84rem}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .stage{position:relative;height:clamp(300px,44vw,520px);border-radius:var(--radius);background:linear-gradient(180deg,var(--stage-a) 0%,var(--stage-b) 100%);overflow:hidden}
+  .stage canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+  .stage canvas.dragging{cursor:grabbing}
+  .stage canvas.over{cursor:pointer}
+  .stage-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:1rem;color:var(--ink-2);font-size:.9rem;margin:0 auto}
+  .viewer-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.3rem 1rem;margin-top:.7rem;font-size:.85rem;color:var(--ink-2)}
+  .viewer-foot b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .viewer-hint{font-size:.8rem;color:var(--ink-2);margin-top:.35rem}
+  .meldung{margin-top:.6rem;font-size:.85rem;border-left:3px solid var(--orange);background:var(--orange-soft);padding:.5rem .7rem;border-radius:var(--radius)}
+  .ctl{padding:1rem}
+  .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1.5px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+  .tabs button{font:inherit;font-size:.82rem;font-weight:700;padding:.55rem .2rem;border:0;background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .tabs button + button{border-left:1.5px solid var(--line)}
+  .tabs button[aria-selected="true"]{background:var(--ink);color:var(--ground)}
+  .ctl-panel{display:grid;gap:1.1rem}
+  .ctl-group{display:grid;gap:.5rem}
+  .ctl-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)}
+  .ctl-note{font-size:.8rem;color:var(--ink-2);line-height:1.45}
+  .col-row{display:grid;grid-template-columns:4.4rem minmax(0,1fr) auto;gap:.5rem;align-items:center;font-size:.88rem}
+  .col-row.zwei{grid-template-columns:4.4rem minmax(0,1fr)}
+  .stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .stepper button{font:inherit;font-size:1rem;font-weight:700;width:2rem;height:2.1rem;border:0;background:transparent;color:var(--ink);cursor:pointer}
+  .stepper button:disabled{color:var(--line);cursor:not-allowed}
+  .stepper output{min-width:1.5rem;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;font-size:.92rem}
+  .konf select{font:inherit;font-size:.92rem;padding:.42rem .5rem;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--ground);color:var(--ink);width:100%}
+  .btn-row{display:flex;flex-wrap:wrap;gap:.5rem}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(2.1rem,1fr));gap:.45rem}
+  .swatch{aspect-ratio:1;max-width:100%;border-radius:50%;border:1.5px solid var(--line);cursor:pointer;padding:0}
+  .swatch[aria-checked="true"]{outline:3px solid var(--orange);outline-offset:2px}
+  .swatch.wie{background:linear-gradient(135deg,var(--surface) 49%,var(--line) 50%)}
+  .swatch-name{font-size:.85rem;color:var(--ink-2)}
+  .swatch-name b{color:var(--ink)}
+  .opt-list{display:grid;gap:.35rem}
+  .opt{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:var(--radius);cursor:pointer;font-size:.9rem;background:var(--surface)}
+  .opt input{margin-top:.25rem;accent-color:var(--orange);flex:none}
+  .opt small{display:block;color:var(--ink-2);font-size:.78rem;line-height:1.35}
+  .opt.is-off{opacity:.55;cursor:not-allowed}
+  .opt.is-on{border-color:var(--orange)}
+  .check-row{display:flex;gap:.5rem;align-items:center;font-size:.9rem;cursor:pointer}
+  .check-row input{accent-color:var(--orange);width:1.05rem;height:1.05rem}
+  .raster{position:relative;width:100%;margin:0 auto;border-bottom:2px solid var(--ink-2)}
+  .raster button{position:absolute;border:1.5px solid var(--ink-2);background:var(--surface);color:var(--ink);font:inherit;font-size:.7rem;font-weight:800;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .raster button[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--ground),inset 0 0 0 5px var(--ink);z-index:1}
+  .fach-kopf{display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;flex-wrap:wrap}
+  .fach-kopf h3{font-size:1rem}
+  .fach-kopf span{font-size:.85rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .parts-head{display:flex;flex-wrap:wrap;gap:.8rem 1rem;justify-content:space-between;align-items:flex-end;margin-bottom:1rem}
+  .status{display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;padding:.35rem .75rem;border-radius:999px}
+  .status.ok{background:var(--gruen-soft);color:var(--gruen)}
+  .status.warn{background:var(--orange-soft);color:var(--orange-ink)}
+  #teile tr.grp th{background:var(--surface);color:var(--orange-ink);font-size:.72rem;padding-top:.9rem}
+  #teile .muted{color:var(--ink-2);font-weight:400;font-family:inherit;font-size:.82rem}
+  #teile tfoot td{font-weight:800;background:var(--line-2)}
+  .hinweise{margin-top:1rem;display:grid;gap:.4rem;font-size:.88rem;color:var(--ink-2);padding-left:1.1rem;max-width:80ch}
+  .code-box{display:grid;gap:.5rem;margin-top:1rem;max-width:40rem}
+  .code-box label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+  .code-box input{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--ground);color:var(--ink);width:100%}
+  .fehler{color:var(--orange-ink);font-size:.85rem}
+  .kopie{width:100%;min-height:12rem;margin-top:1rem;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;padding:.6rem;border:1.5px solid var(--line);background:var(--ground);color:var(--ink)}
+  .nur-mobil{display:none}
+  @media (max-width:860px){
+    .konf-app{grid-template-columns:minmax(0,1fr)}
+    .stage{height:clamp(260px,78vw,440px)}
+    .nur-mobil{display:inline-block}
+  }
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr;padding-top:2.5rem;gap:1.5rem}
+    .hero-art{order:-1}
+    .hero-art svg{max-width:200px}
+    .grid-2,.grid-3,.dreh-grid,.footer-inner,.calc{grid-template-columns:minmax(0,1fr)}
+  }
+  @media (max-width:420px){ .feld-row{grid-template-columns:1fr} .summe{gap:.9rem} .summe b{font-size:1.5rem} }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.topic-card{transition:none}}
+
+</style>
+</head>
+<body>
+<div class="disclaimer-strip"><strong>Inoffizielles Community-Projekt</strong> – keine Verbindung zur USM U. Schärer Söhne AG. Frei formulierte Erfahrungs- und Wissenstexte, alle Angaben ohne Gewähr.</div>
+<header><div class="nav-inner"><a class="logo" href="index.html"><span class="dot"></span>Haller-Wissen</a>
+<nav aria-label="Hauptnavigation"><ul><li><a href="system.html">System</a></li><li><a href="werkzeug.html">Werkzeug</a></li><li><a href="aufbau.html">Aufbau</a></li><li><a href="konfigurator.html">Konfigurator</a></li><li><a href="demontage.html">Demontage</a></li><li><a href="elemente.html">Elemente</a></li><li><a href="tueren.html">Türen</a></li><li><a href="komponenten.html" aria-current="page">Auszüge</a></li><li><a href="vitrine.html">Vitrine</a></li><li><a href="sicherheit.html">Sicherheit</a></li><li><a href="ersatzteile.html">Ersatzteile</a></li><li><a href="praxis.html">Praxis</a></li></ul></nav></div></header>
+<main id="top">
+  <div class="page-head">
+    <div class="crumb"><a href="index.html">Start</a> / Auszüge, Schubladen &amp; Co.</div>
+    <span class="eyebrow">Ausbau</span>
+    <h1>Auszüge, Schubladen, Register &amp; Innenleben</h1>
+    <p class="lead">Alles, was sich im Regal bewegt: Auszugtablare mit Sperre,
+    Schubladen in vier Höhen, Hängeregister, Schrägablagen und die
+    Inos-Innenausstattung.</p>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Komponente 1</span>
+      <h2>Auszugtablar &amp; Auszugsperre</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag tag-blau">Montage</span>
+        <h3>Teleskopauszüge setzen</h3>
+        <p>Klemmhalter setzen (tiefste Position: 2), Teleskopauszüge links und
+        rechts vorn am Klemmhalter vorbefestigen, vorn und hinten mit
+        M4×10-Senkschrauben zentrieren und mit 1,7&nbsp;Nm anziehen – der
+        Ausschnitt für die Kupplung zeigt immer nach unten. Tablar und Winkel
+        mit M4×6 auf die Auszüge schrauben. Traglast: 50&nbsp;kg bei Tiefe
+        500, 35&nbsp;kg bei Tiefe 350. Immer von unten nach oben montieren.
+        Aktuelle Auszüge gibt es mit Endeinzug (Selbsteinzug am Schluss).</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-blau">Sperre</span>
+        <h3>Nur ein Auszug gleichzeitig offen</h3>
+        <p>Die Auszugsperre kombiniert Sperrplatten mit Sperrstangen
+        (17 Längen; die eingeprägte Nennlänge entspricht dem
+        Klemmhalter-Abstand, Prägung zeigt nach innen). Die Sperrplatte wird
+        immer mit <em>entspanntem</em> Endanschlag eingesetzt: Auszug öffnen
+        und Knopf freigeben = entspannt; Auszug schließen und wieder öffnen =
+        gespannt. Ab 70&nbsp;mm Abstand übernimmt die Sperrplatte allein,
+        die Stange entfällt. Mit Stangenlänge 110 lassen sich zwei Tablare
+        hinter einer Einschubtür gegeneinander sperren, mit Länge 350 die
+        Einschubtüren untereinander. Mindestabstand zwischen zwei gesperrten
+        Auszugtablaren: 8&nbsp;cm.</p>
+      </div>
+    </div>
+    <div class="hinweis blau">
+      <strong>Nutzhöhen merken</strong>
+      Die nutzbare Fachhöhe über einem Auszugtablar ergibt sich aus der
+      Klemmhalter-Position: z.&nbsp;B. liefert Position 2 im 350er-Fach
+      158&nbsp;mm, Position 18 noch 148&nbsp;mm (mit Rost) – wer mehrere
+      Tablare stapelt, plant am besten mit der 8-cm-Mindestdistanz.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Komponente 2</span>
+      <h2>Schubladen (Generation 2000)</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <span class="tag tag-grau">Formate</span>
+        <h3>Vier Höhen, zwei Raster</h3>
+        <p>Klein = 100&nbsp;mm, A6 = 175&nbsp;mm, A5 = 250&nbsp;mm,
+        A4 = 350&nbsp;mm Mindestfachhöhe. Alle Größen passen ins Raster
+        395×500; im Raster 750×500 lassen sich „klein“ und A6 paarweise
+        nebeneinander einbauen.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-grau">Führung</span>
+        <h3>Führungsrahmen einclipsen</h3>
+        <p>Führung 750/500 hat vier Bremsen und vier Kugellagerböcke,
+        395/500 je zwei. Bremse einclipsen, oberes Tablar verschrauben, dann
+        den vormontierten Rahmen erst hinten, hinten dann vorn in den
+        Blechfalz drücken, bis alle Schnappfedern einrasten. Ausbau:
+        Schlitzschraubendreher zwischen Flansch und Führung hebeln und
+        gleichzeitig die Schnappfeder wegdrücken.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-grau">Auszug &amp; Lade</span>
+        <h3>Einsetzen und justieren</h3>
+        <p>Je Auszug zwei Puffer einclipsen. Linken Auszug im 45°-Winkel
+        einführen, 10&nbsp;mm vorziehen, rechten Auszug genauso; erst dann die
+        Schienen über die Kugellager legen und auf 1&nbsp;mm Spiel
+        eindrücken. Außenflächen dünn mit Vaseline schmieren. Gleiter mit der
+        Zange in die Lade pressen, Griff in den Falz drücken, Schloss mit
+        zwei M3,5×14 an der Riegelführung verschrauben. Lade über die
+        Auszugstopps heben und einschieben, bis sie einrastet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Komponente 3</span>
+      <h2>Hängeregister</h2>
+    </div>
+    <div class="card">
+      <p>Hängeregisterrahmen gibt es für 750×500 und 395×500. Die 750er-Führung
+      wird vorn und hinten mit je zwei Schrauben am Rahmen befestigt (395er:
+      je eine); dafür Gleiter lösen, vordere und hintere Verbinder 3–4
+      Umdrehungen lockern, Führung einsetzen, alles wieder festziehen –
+      verlorene Connies holt der Stabmagnet zurück in die Kugel. Beide
+      Positionsringe hinten mit M3×4 fixieren, Auszugblock hinter die Ringe
+      setzen (alle Kugellagerböcke mit Gummipuffern nach innen!) und mit
+      M4×16 anschrauben. Zum Einsetzen den Auszug ca. 45° drehen, hintere
+      Kugellager in die Schienen fädeln, zurückdrehen; den Registerrahmen
+      hinten auf den breiten Teil setzen und einschieben – die Kippsicherung
+      rastet automatisch ein. Ausbau: bis zum Anschlag ausziehen und leicht
+      anheben. Tipp aus der Wartung: Rutschen die Einsätze zusammen, sichern
+      zwei Magnetschienen die Hängemappen.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Komponente 4</span>
+      <h2>Schrägablage (Zeitschriftenklappe)</h2>
+    </div>
+    <div class="card">
+      <p>Verfügbar in 750/350 und 500/350; in Tiefe 250 einseitig, in 350/500
+      auch doppelseitig. Maximale Auflast: 6&nbsp;kg; nutzbare Höhe in
+      geöffneter Stellung: 175&nbsp;mm. Klemmhalter sitzen in der Regel an den
+      Seitenwänden (ohne Seitenwände: am oberen Tablar) – klassisch auf
+      Position 11 und 13, bei Varianten mit Gasdruckfeder zusätzlich
+      Position 12. Befestiger links/rechts mit M4×10 anschrauben, Klappe in
+      die Schwenklager clipsen, Lagerbolzen ins Federelement setzen und
+      verschrauben, Scheiben mit M4×6 ans Lager, Dämpfer eindrücken.
+      Bedienung: Druck oben öffnet (Klappe schwenkt hoch und gibt den
+      Stauraum dahinter frei), Druck auf die Mitte schließt.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Komponente 5</span>
+      <h2>Inos-Innenausstattung &amp; Zubehör</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag tag-grau">Inos</span>
+        <h3>Boxen &amp; Einsätze nach Baukastenprinzip</h3>
+        <p>Die Inos-Serie organisiert Auszugtablare (750/350 und 750/500) und
+        Schubladen (klein bis A5) mit kombinierbaren Schalen, Stegen und
+        Fächereinsätzen. Jedes Set (USM10140–USM10187) ist eine definierte
+        Kombination weniger Grundteile – z.&nbsp;B. besteht das Set USM10148
+        aus 3× Schale 14294 und 2× Halter 14304. Praktisch: Wer einzelne
+        Einsätze verliert, bestellt einfach die Grundteil-Nummer nach,
+        statt das ganze Set zu kaufen.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-grau">Weiteres</span>
+        <h3>Kleiderstange, Buchstützen &amp; Lateralsets</h3>
+        <p>Außerdem fürs Innenleben verfügbar: Kleiderstangensets (Montage in
+        Tablar-Längsachse oder -Tiefe), ein- und doppelseitige Buchstützen,
+        Magnetbuchstützen, Verstärkungsprofil 750 für schwere Lasten,
+        Lateral-Hängesysteme (Klemmhalter-Position meist 24, Twinlock 12:
+        Position 25) sowie das Schwenksystem „Oblique 350“ – dessen
+        Distanzstücke nur bei Fächern mit Klapptür montiert werden
+        (vorn Pos. 23, hinten Pos. 24) und exakt mittig im Lateralprofil
+        sitzen müssen. Tastaturauszüge lassen sich in Tiefe 500 an Rost,
+        Tablar oder Auszug montieren und werden im geöffneten Zustand über
+        Stellschrauben exakt auf Rohr bzw. Anschlagplatte justiert.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="next-prev">
+    <a class="btn btn-ghost" href="tueren.html">← Türen &amp; Schlösser</a>
+    <a class="btn btn-primary" href="vitrine.html">Weiter: Glasvitrine →</a>
+  </div>
+</main>
+<footer><div class="footer-inner">
+<div><h4>Über dieses Projekt</h4>
+<p>Haller-Wissen ist eine private, nicht-kommerzielle Wissensplattform von Liebhabern des Haller-Systemmöbels – für alle, die selbst aufbauen, umbauen, restaurieren oder Ersatzteile suchen. Alle Texte sind eigenständig formulierte Zusammenfassungen aus eigener Praxiserfahrung und öffentlich zugänglichen technischen Unterlagen. Es besteht keine Verbindung zur USM U. Schärer Söhne AG (Münsingen, Schweiz). „USM“ und „USM Haller“ sind Marken ihrer jeweiligen Inhaber. Preise sind historische Beispielwerte aus eigenen Bestellungen 2024/25 und können abweichen. Arbeiten am Möbel erfolgen auf eigene Verantwortung.</p>
+<p style="margin-top:.8rem">Stand: September 2026</p></div>
+<div><h4>Alle Themen</h4><ul><li><a href="system.html">System &amp; Technik</a></li><li><a href="werkzeug.html">Werkzeug</a></li><li><a href="aufbau.html">Aufbau-Guide</a></li><li><a href="konfigurator.html">Regal-Konfigurator</a></li><li><a href="rechner.html">Teilerechner</a></li><li><a href="demontage.html">Demontage &amp; Umzug</a></li><li><a href="elemente.html">Tablare &amp; Wände</a></li><li><a href="tueren.html">Türen &amp; Schlösser</a></li><li><a href="komponenten.html">Auszüge &amp; Schubladen</a></li><li><a href="vitrine.html">Glasvitrine</a></li><li><a href="sicherheit.html">Sicherheit &amp; Wartung</a></li><li><a href="ersatzteile.html">Ersatzteile</a></li><li><a href="praxis.html">Werkstatt-Notizen</a></li></ul></div>
+</div></footer>
+</body>
+</html>
